@@ -82,7 +82,7 @@ public struct ConsoleDestination: LogDestination {
 @dynamicMemberLookup
 public final class TypedLogger<Registry> {
     private var registry: Registry
-    public var subsystem: String
+    private var subsystem: String
 
     public init(with registry: Registry, subsystem: String) {
         self.registry = registry
