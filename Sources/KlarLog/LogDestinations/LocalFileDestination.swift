@@ -106,7 +106,7 @@ public final class LocalFileDestination: LogDestination, Sendable {
     ///   - message: The message text to log.
     public func log(subsystem: String, category: String, level: ExposedCategoryLogger.Level, message: String) {
         let timestamp = dateFormatter.string(from: Date())
-        let logLine = "\(timestamp) [\(level.rawValue.uppercased())] [\(category)] \(message)"
+        let logLine = "\(timestamp)\t[\(level.rawValue.uppercased())]\t[\(category)]\t\(message)"
         
         Task.detached(priority: .utility) { [fileActor] in
             await fileActor.writeLog(logLine)
