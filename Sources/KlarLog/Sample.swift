@@ -22,7 +22,7 @@ public struct LogDestinations {
 // 3. Create a globally accessible KlarLog instance with the CategoryLoggers
 let logger = KlarLog(
     with: CategoryLoggers(),
-    destinationsRegistry: LogDestinations(),
+    toDestinations: LogDestinations(),
     subsystem: Bundle.main.bundleIdentifier ?? "com.example.app"
 )
 

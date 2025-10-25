@@ -70,10 +70,10 @@
 ///   dynamic member lookup on `KlarLog` (e.g., `log.general`). Other property types
 ///   should not be stored in the `Registry` and will not be exposed as `ExposedCategoryLogger`s.
 @dynamicMemberLookup
-public final class KlarLog<Registry, DestinationRegistry> {
+public final class KlarLog<CategoryLoggerRegistry, DestinationRegistry> {
     /// The underlying registry that provides concrete `CategoryLogger` instances.
-    private var registry: Registry
-    /// The destinations registry that provides concrete `LogDestination` instances.
+    private var categoryLoggerRegistry: CategoryLoggerRegistry
+    /// The destinations categoryLoggerRegistry that provides concrete `LogDestination` instances.
     private var destinationsRegistry: DestinationRegistry
     /// The logging subsystem name associated with this `KlarLog` instance.
     private var subsystem: String
@@ -85,15 +85,15 @@ public final class KlarLog<Registry, DestinationRegistry> {
     /// Typically you'll only want to create one globally shared instance.
     ///
     /// - Note:
-    /// `KlarLog` expects `registry` to contain only `CategoryLogger` properties.
+    /// `KlarLog` expects `categoryLoggerRegistry` to contain only `CategoryLogger` properties.
     /// Other property types will not be accessible through dynamic member lookup.
     ///
     /// - Parameters:
-    ///   - registry: The backing registry whose properties of type `CategoryLogger` are projected via dynamic member lookup.
-    ///   - destinationsRegistry: The backing registry whose properties of type `LogDestination` will be collected.
+    ///   - categoryLoggerRegistry: The backing categoryLoggerRegistry whose properties of type `CategoryLogger` are projected via dynamic member lookup.
+    ///   - destinationsRegistry: The backing categoryLoggerRegistry whose properties of type `LogDestination` will be collected.
     ///   - subsystem: The subsystem string used to tag category loggers returned by this wrapper.
-    public init(with registry: Registry, destinationsRegistry: DestinationRegistry, subsystem: String) {
-        self.registry = registry
+    public init(with categoryLoggerRegistry: CategoryLoggerRegistry, toDestinations destinationsRegistry: DestinationRegistry, subsystem: String) {
+        self.categoryLoggerRegistry = categoryLoggerRegistry
         self.destinationsRegistry = destinationsRegistry
         self.subsystem = subsystem
         // Reflect over the destinationsRegistry and collect all properties that are LogDestination
@@ -107,22 +107,22 @@ public final class KlarLog<Registry, DestinationRegistry> {
         self._destinations = collected
     }
   
-    /// Dynamic member lookup for `CategoryLogger` entries on the registry.
+    /// Dynamic member lookup for `CategoryLogger` entries on the categoryLoggerRegistry.
     /// The returned `ExposedCategoryLogger` is bound to this instance's subsystem
-    /// and uses the collected list of destinations from the destinations registry.
+    /// and uses the collected list of destinations from the destinations categoryLoggerRegistry.
     ///
     /// This enables a fluent API such as:
     ///
     /// ```swift
-    /// // Given a registry with a `network` CategoryLogger
-    /// let log = KlarLog(with: registry, subsystem: "com.example.app")
+    /// // Given a categoryLoggerRegistry with a `network` CategoryLogger
+    /// let log = KlarLog(with: categoryLoggerRegistry, subsystem: "com.example.app")
     /// log.network.info("Fetching profile…")
     /// ```
     ///
-    /// - Parameter keyPath: A `KeyPath` into `Registry` that resolves to a `CategoryLogger`.
+    /// - Parameter keyPath: A `KeyPath` into `categoryLoggerRegistry` that resolves to a `CategoryLogger`.
     /// - Returns: An `ExposedCategoryLogger` that forwards to the resolved `CategoryLogger` and supplies the current `subsystem`.
-    public subscript(dynamicMember keyPath: KeyPath<Registry, CategoryLogger>) -> ExposedCategoryLogger {
-        let base = registry[keyPath: keyPath]
+    public subscript(dynamicMember keyPath: KeyPath<CategoryLoggerRegistry, CategoryLogger>) -> ExposedCategoryLogger {
+        let base = categoryLoggerRegistry[keyPath: keyPath]
         return ExposedCategoryLogger(
             subsystem: { [weak self] in self?.subsystem ?? "" },
             destinations: { [weak self] in self?._destinations ?? [] },
