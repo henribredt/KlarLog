@@ -68,7 +68,7 @@ public final class LocalFileDestination: LogDestination, Sendable {
         
         // Append milliseconds to the existing format
         if let format = formatter.dateFormat {
-            formatter.dateFormat = format.replacingOccurrences(of: "ss", with: "ss.SS")
+            formatter.dateFormat = format.replacingOccurrences(of: "ss", with: "ss:SS")
         }
         
         return formatter
