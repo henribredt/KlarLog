@@ -121,7 +121,7 @@ public final class KlarLog<Registry, DestinationRegistry> {
     ///
     /// - Parameter keyPath: A `KeyPath` into `Registry` that resolves to a `CategoryLogger`.
     /// - Returns: An `ExposedCategoryLogger` that forwards to the resolved `CategoryLogger` and supplies the current `subsystem`.
-    subscript(dynamicMember keyPath: KeyPath<Registry, CategoryLogger>) -> ExposedCategoryLogger {
+    public subscript(dynamicMember keyPath: KeyPath<Registry, CategoryLogger>) -> ExposedCategoryLogger {
         let base = registry[keyPath: keyPath]
         return ExposedCategoryLogger(
             subsystem: { [weak self] in self?.subsystem ?? "" },
