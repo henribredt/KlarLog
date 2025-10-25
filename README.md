@@ -1,4 +1,111 @@
-#  KlarLog
+# KlarLog
+
+A lightweight, type-safe logging framework for Swift with powerful destination-based routing.
+
+### Features
+
+- **Type-Safe Categories** - Define logging categories in a compile-time checked registry
+- **Dynamic Member Lookup** - Clean dot-notation syntax for accessing loggers
+- **Multiple Destinations** - Route logs to console, files, and custom destinations
+- **File Logging** - Built-in `LocalFileDestination` with automatic size management
+- **OS.Log Integration** - Built-in `ConsoleDestination` uses `os.Logger` for Xcodes Debug Console and Console.app integration
+- **Modern Concurrency** - Built with Swift concurrency
+
+### Installation
+
+Add KlarLog via Swift Package Manager in Xcode: **File → Add Package Dependencies**
+```
+https://github.com/henribredt/KlarLog
+```
+
+
+### Quick Start
+Configure KlarLog on app launch. Provide your configured `CategoryLoggers`and `LogDestinations` as structs.
+To make your instance globally available create a new file `KlarLogConfig.swift` and add steps 1.-3. to that file.
+#### 1. Define your CategoryLoggers
+```swift
+public struct CategoryLoggers {
+    // Add your `CategoryLogger`s
+    public let network = CategoryLogger(category: "network")
+    public let database = CategoryLogger(category: "database")
+}
+```
+
+#### 2. Define Your LoggerDestinations
+```swift
+public struct LogDestinations {
+    // create private destinations by default
+    private let console = ConsoleDestination()
+    // create a public destination if you require access druing runtime, e.g. for collecting logs
+    public let file = LocalFileDestination(fileURL: .documentDirectory, maxMessages: 800)
+}
+```
+
+#### 3. Create Your Logger
+```swift
+let logger = KlarLog(
+    with: CategoryLoggers(),
+    toDestinations: LogDestinations(),
+    subsystem: Bundle.main.bundleIdentifier ?? "com.example.app"
+)
+```
+
+#### 4. Start Logging
+```swift
+logger.network.info("Starting request")
+logger.network.debug("URL: \(url)")
+logger.database.error("Connection failed")
+```
+In this example there are two destinations setup, so KlarLog will log to OS.Log and to a local file.
+
+### Log Levels
+
+- `debug` - Detailed diagnostic information
+- `info` - General informational messages
+- `notice` - Normal but significant events
+- `warning` - Warning conditions
+- `error` - Error conditions
+- `critical` - Critical conditions
+
+### Reading Logs
+```swift
+// Access file destination via dynamic member lookup
+let logs = await log.fileDestination.readLogs()
+
+// Clear logs
+await log.fileDestination.clearLogs()
+```
+
+### Custom Destinations
+You can add custom Destinations by conforming to the `LogDestination` protocol to trigger custom actions when a log event is triggerd.
+Simply add an instance of your `LogDestination` in step 2 of the Quick Start.
+```swift
+struct AnalyticsDestination: LogDestination {
+    let apiURL: URL
+    
+    func log(subsystem: String, category: String, level: ExposedCategoryLogger.Level, message: String) {
+        Task {
+            var request = URLRequest(url: apiURL)
+            request.httpMethod = "POST"
+            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            
+            let payload = [
+                "subsystem": subsystem,
+                "category": category,
+                "level": level.rawValue,
+                "message": message,
+                "timestamp": ISO8601DateFormatter().string(from: Date())
+            ]
+            
+            request.httpBody = try? JSONSerialization.data(withJSONObject: payload)
+            
+            try? await URLSession.shared.data(for: request)
+        }
+    }
+}
+```
+
+# OSLog hints
 
 ## Writing Log messages
 - Use String interpolation to access runtime data. Messages can contain a wide range of data types. Including custom Types if they conform to `CustomStringConvertible`.
