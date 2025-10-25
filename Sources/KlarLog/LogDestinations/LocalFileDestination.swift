@@ -65,8 +65,8 @@ public final class LocalFileDestination: LogDestination, Sendable {
         let formatter = DateFormatter()
         formatter.locale = .current
         formatter.timeZone = .current
-        formatter.dateStyle = .medium
-        formatter.timeStyle = .medium
+        formatter.dateStyle = .short
+        formatter.timeStyle = .short
         return formatter
     }()
     
