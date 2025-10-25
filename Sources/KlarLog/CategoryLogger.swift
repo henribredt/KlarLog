@@ -80,7 +80,7 @@ public struct ExposedCategoryLogger {
     private let subsystem: () -> String
     private let destinations: () -> [LogDestination]
     /// The underlying category logger that routes messages to destinations.
-    public var base: CategoryLogger
+    private var base: CategoryLogger
     
     /// Creates a new exposed category logger.
     ///
