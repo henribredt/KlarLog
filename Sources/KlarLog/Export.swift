@@ -2,7 +2,6 @@
 //  Export.swift
 //  KlarLog
 //
-//  Created by Henri Bredt on 25.10.25.
-//
 
+// Make os availabe
 @_exported import os
