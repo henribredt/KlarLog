@@ -60,9 +60,13 @@ public final class LocalFileDestination: LogDestination, Sendable {
     /// The maximum number of log messages to retain before removing old entries.
     private let maxMessages: Int
     
-    /// ISO 8601 date formatter for timestamp generation.
-    private let dateFormatter: ISO8601DateFormatter = {
-        let formatter = ISO8601DateFormatter()
+    /// Human-readable date formatter for timestamp generation (localized, medium styles).
+    private let dateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.locale = .current
+        formatter.timeZone = .current
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .medium
         return formatter
     }()
     
@@ -102,7 +106,7 @@ public final class LocalFileDestination: LogDestination, Sendable {
     ///   - message: The message text to log.
     public func log(subsystem: String, category: String, level: ExposedCategoryLogger.Level, message: String) {
         let timestamp = dateFormatter.string(from: Date())
-        let logLine = "\(timestamp) [\(level.rawValue.uppercased())] [\(subsystem)] [\(category)] \(message)"
+        let logLine = "\(timestamp) [\(level.rawValue.uppercased())] [\(category)] \(message)"
         
         Task.detached(priority: .utility) { [fileActor] in
             await fileActor.writeLog(logLine)
