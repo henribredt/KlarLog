@@ -91,7 +91,7 @@ public struct ExposedCategoryLogger {
     ///   - subsystem: A closure that returns the current subsystem string.
     ///   - destinations: A closure that returns the current destinations.
     ///   - base: The underlying `CategoryLogger` that routes messages to destinations.
-    internal init(subsystem: @escaping () -> String, destinations: @escaping () -> [LogDestination], base: CategoryLogger) {
+    public init(subsystem: @escaping () -> String, destinations: @escaping () -> [LogDestination], base: CategoryLogger) {
         self.subsystem = subsystem
         self.destinations = destinations
         self.base = base
