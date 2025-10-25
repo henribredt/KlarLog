@@ -59,14 +59,18 @@ public final class LocalFileDestination: LogDestination, Sendable {
     
     /// The maximum number of log messages to retain before removing old entries.
     private let maxMessages: Int
-    
-    /// Human-readable date formatter for timestamp generation (localized, medium styles).
     private let dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.locale = .current
         formatter.timeZone = .current
         formatter.dateStyle = .short
         formatter.timeStyle = .medium
+        
+        // Append milliseconds to the existing format
+        if let format = formatter.dateFormat {
+            formatter.dateFormat = format.replacingOccurrences(of: "ss", with: "ss.SS")
+        }
+        
         return formatter
     }()
     
@@ -85,7 +89,7 @@ public final class LocalFileDestination: LogDestination, Sendable {
     ///
     /// - Note: The file is not created or validated during initialization. The first
     ///   write operation will create it if necessary.
-    public init(fileURL: URL, maxMessages: Int = 1000) {
+    public init(fileURL: URL, maxMessages: Int = 600) {
         self.fileURL = fileURL
         self.maxMessages = maxMessages
         self.fileActor = FileOperationActor(fileURL: fileURL, maxMessages: maxMessages)
