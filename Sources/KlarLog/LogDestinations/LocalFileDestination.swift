@@ -145,7 +145,7 @@ private actor FileOperationActor {
     }
     
     /// Writes a log line to the file and enforces the message limit.
-    func writeLog(_ logLine: String) {
+    internal func writeLog(_ logLine: String) {
         // Read existing logs
         var lines = readLogsInternal()
         
@@ -169,6 +169,23 @@ private actor FileOperationActor {
     /// Reads all log entries from the file.
     func readLogs() -> [String] {
         return readLogsInternal()
+    }
+    
+    /// Reads all log entries as a single string from the file asynchronously.
+    ///
+    /// Returns the entire file contents (with trailing newline if present).
+    /// If the file doesn't exist or can't be read, returns an empty string.
+    ///
+    /// - Returns: A single string containing all log entries.
+    func readLogsAsString() -> String {
+        guard FileManager.default.fileExists(atPath: fileURL.path) else {
+            return ""
+        }
+        guard let data = try? Data(contentsOf: fileURL),
+              let content = String(data: data, encoding: .utf8) else {
+            return ""
+        }
+        return content
     }
     
     /// Deletes the log file.
@@ -203,3 +220,4 @@ private actor FileOperationActor {
             .map(String.init)
     }
 }
+
