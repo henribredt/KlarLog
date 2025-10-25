@@ -154,7 +154,7 @@ private actor FileOperationActor {
     private let maxMessages: Int
     
     init(fileURL: URL, maxMessages: Int) {
-        self.fileURL = fileURL
+        self.fileURL = fileURL.appending(path: "app.logs")
         self.maxMessages = maxMessages
     }
     
