@@ -106,7 +106,7 @@ public final class LocalFileDestination: LogDestination, Sendable {
     ///   - message: The message text to log.
     public func log(subsystem: String, category: String, level: ExposedCategoryLogger.Level, message: String) {
         let timestamp = dateFormatter.string(from: Date())
-        let logLine = "\(timestamp)\t[\(level.rawValue.uppercased())]\t[\(category)]\t\(message)"
+        let logLine = "\(timestamp)\t[\(level.rawValue.uppercased())]\t[\(category)] \(message)"
         
         Task.detached(priority: .utility) { [fileActor] in
             await fileActor.writeLog(logLine)
@@ -143,6 +143,16 @@ public final class LocalFileDestination: LogDestination, Sendable {
     @discardableResult
     public func clearLogs() async -> Bool {
         return await fileActor.clearLogs()
+    }
+    
+    /// Ensures the log file exists (creating it if necessary) and returns the URL for sharing/export.
+    ///
+    /// Use this when you want to share the log file with other apps (e.g., using a share sheet).
+    /// This method is asynchronous and runs off the main thread via the internal file actor.
+    ///
+    /// - Returns: The URL of the log file. If creation fails, returns nil.
+    public func logFileURLForSharing() async -> URL? {
+        return await fileActor.ensureExistsAndReturnURL()
     }
 }
 
@@ -209,6 +219,26 @@ private actor FileOperationActor {
         } catch {
             return false
         }
+    }
+    
+    /// Ensures the file exists on disk and returns its URL.
+    /// If the file doesn't exist, it creates an empty file at the target URL.
+    /// If creation fails, it still returns the intended URL so callers can handle errors upstream.
+    func ensureExistsAndReturnURL() -> URL? {
+        let fm = FileManager.default
+        let path = fileURL.path
+        if !fm.fileExists(atPath: path) {
+            // Ensure parent directory exists
+            let dirURL = fileURL.deletingLastPathComponent()
+            try? fm.createDirectory(at: dirURL, withIntermediateDirectories: true)
+            // Create empty file
+            let created = fm.createFile(atPath: path, contents: Data(), attributes: nil)
+            if !created {
+                // Fall through
+                return nil
+            }
+        }
+        return fileURL
     }
     
     // MARK: - Private Methods
