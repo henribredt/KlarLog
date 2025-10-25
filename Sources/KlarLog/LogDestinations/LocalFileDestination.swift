@@ -120,6 +120,16 @@ public final class LocalFileDestination: LogDestination, Sendable {
         return await fileActor.readLogs()
     }
     
+    /// Reads all log entries as a single string from the file asynchronously.
+    ///
+    /// Returns the entire file contents (with trailing newline if present).
+    /// If the file doesn't exist or can't be read, returns an empty string.
+    ///
+    /// - Returns: A single string containing all log entries.
+    public func readLogsString() async -> String {
+        return await fileActor.readLogsAsString()
+    }
+    
     /// Deletes all log entries from the file asynchronously.
     ///
     /// This removes the log file entirely. The file will be recreated on the next write.
@@ -171,12 +181,7 @@ private actor FileOperationActor {
         return readLogsInternal()
     }
     
-    /// Reads all log entries as a single string from the file asynchronously.
-    ///
-    /// Returns the entire file contents (with trailing newline if present).
-    /// If the file doesn't exist or can't be read, returns an empty string.
-    ///
-    /// - Returns: A single string containing all log entries.
+    /// Reads all log entries from the file as a single string.
     func readLogsAsString() -> String {
         guard FileManager.default.fileExists(atPath: fileURL.path) else {
             return ""
