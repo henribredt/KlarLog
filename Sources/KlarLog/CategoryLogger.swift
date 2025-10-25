@@ -84,7 +84,7 @@ public struct ExposedCategoryLogger {
     /// Closure that provides the current subsystem identifier.
     private let subsystem: () -> String
     /// The underlying category logger that routes messages to destinations.
-    private var base: CategoryLogger
+    public var base: CategoryLogger
     
     /// Creates a new exposed category logger.
     ///
