@@ -3,51 +3,46 @@
 //  KlarLog
 //
 
-/// Internal logging instance that routes log messages to configured destinations.
+/// Internal logging instance that routes log messages to destinations provided by `KlarLog`.
 ///
 /// `CategoryLogger` represents a logging category (e.g., "network", "database") and
-/// maintains a list of destinations where log messages should be sent. After initialization
-/// and configuration in your registry in `KlarLog`, these instances are wrapped by `ExposedCategoryLogger`
-/// which provides the public logging API.
+/// maintains a category name. After initialization in your registry in `KlarLog`,
+/// these instances are wrapped by `ExposedCategoryLogger` which provides the public logging API.
 ///
-/// You create `CategoryLogger` instances in your registry and configure them with destinations:
+/// You create `CategoryLogger` instances in your registry; destinations are configured on `KlarLog`:
 ///
 /// ```swift
 /// public struct CategoryLoggers {
 ///     public let network = CategoryLogger(
-///         category: "network",
-///         destinations: [ConsoleDestination()]
+///         category: "network"
 ///     )
 /// }
 /// ```
 ///
-/// After configuring the regisitry of `KlarLog` as shown above, end users never interact with
+/// After configuring the registry of `KlarLog` as shown above, end users never interact with
 /// `CategoryLogger` directly as all logging is performed through `ExposedCategoryLogger` instances
 /// returned by `KlarLog`.
 public struct CategoryLogger {
     /// The category name for this logger (e.g., "network", "database").
-    private let category: String
-    /// The list of destinations that will receive log messages from this category.
-    private var destinations: [LogDestination]
+    let category: String
     
     /// Creates a new category logger.
     ///
     /// - Parameters:
     ///   - category: The category name that will be used to tag all log messages.
-    ///   - destinations: The list of destinations where messages should be sent.
-    public init(category: String, destinations: [LogDestination]) {
+    public init(category: String) {
         self.category = category
-        self.destinations = destinations
     }
     
-    /// Routes a log message to all configured destinations.
+    /// Routes a log message to all provided destinations.
     /// This method is only called by `ExposedCategoryLogger`.
     ///
     /// - Parameters:
     ///   - subsystem: The subsystem identifier (e.g., "com.example.app").
+    ///   - destinations: The list of destinations where messages should be sent.
     ///   - level: The severity level of the log message.
     ///   - message: The message text of the log.
-    fileprivate func log(subsystem: String, level: ExposedCategoryLogger.Level, message: String) {
+    fileprivate func log(subsystem: String, destinations: [LogDestination], level: ExposedCategoryLogger.Level, message: String) {
         destinations.forEach { $0.log(subsystem: subsystem, category: category, level: level, message: message) }
     }
 }
@@ -83,8 +78,9 @@ public struct ExposedCategoryLogger {
     
     /// Closure that provides the current subsystem identifier.
     private let subsystem: () -> String
+    private let destinations: () -> [LogDestination]
     /// The underlying category logger that routes messages to destinations.
-    private var base: CategoryLogger
+    public var base: CategoryLogger
     
     /// Creates a new exposed category logger.
     ///
@@ -93,9 +89,11 @@ public struct ExposedCategoryLogger {
     ///
     /// - Parameters:
     ///   - subsystem: A closure that returns the current subsystem string.
+    ///   - destinations: A closure that returns the current destinations.
     ///   - base: The underlying `CategoryLogger` that routes messages to destinations.
-    internal init(subsystem: @escaping () -> String, base: CategoryLogger) {
+    internal init(subsystem: @escaping () -> String, destinations: @escaping () -> [LogDestination], base: CategoryLogger) {
         self.subsystem = subsystem
+        self.destinations = destinations
         self.base = base
     }
     
@@ -105,7 +103,7 @@ public struct ExposedCategoryLogger {
     ///   - level: The severity level of the message.
     ///   - message: The message text to log.
     private func log(_ level: Level, _ message: String) {
-        base.log(subsystem: subsystem(), level: level, message: message)
+        base.log(subsystem: subsystem(), destinations: destinations(), level: level, message: message)
     }
     
     // MARK: - Convenience logging methods
@@ -164,3 +162,4 @@ public struct ExposedCategoryLogger {
         self.log(.critical, message)
     }
 }
+

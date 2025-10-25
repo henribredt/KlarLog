@@ -8,25 +8,45 @@ import SwiftUI
 // 1. Setup the CategoryLoggers
 public struct CategoryLoggers {
     // 2. Add new `CategoryLogger`s here and conigure them
-    public let general = CategoryLogger(
-        category: "general",
-        destinations: [ConsoleDestination()]
-    )
-    public let authentification = CategoryLogger(
-        category: "auth",
-        destinations: [ConsoleDestination()]
-    )
+    public let general = CategoryLogger(category: "general")
+    public let authentification = CategoryLogger(category: "auth")
+}
+
+public struct LogDestinations {
+    // create a private destination if the destionation will not be accessed later
+    private let console = ConsoleDestination()
+    // create a public destination to acesss it late, e.g. for collecting logs
+    public let file = LocalFileDestination(fileURL: .desktopDirectory, maxMessages: 800)
 }
 
 // 3. Create a globally accessible KlarLog instance with the CategoryLoggers
-let logger = KlarLog(with: CategoryLoggers(), subsystem: Bundle.main.bundleIdentifier ?? "com.example.app")
+let logger = KlarLog(
+    with: CategoryLoggers(),
+    destinationsRegistry: LogDestinations(),
+    subsystem: Bundle.main.bundleIdentifier ?? "com.example.app"
+)
 
 struct SampleView: View {
+    @State private var logs: String = ""
     var body: some View {
-        Text("KlarLog")
-            .onAppear {
-                // 4. Use logger
-                logger.general.info("View appeard")
+        VStack{
+            Text("KlarLog")
+                .onAppear {
+                    // 4. Use logger
+                    logger.general.info("View appeard")
+                }
+            
+            Button {
+            // TODO: GET ACCESSS TO LOGS
+                let fileDestination = logger.destinations.file
+                Task{
+                    logs = await fileDestination.readLogs().first ?? "no log"
+                }
+                
+            } label: {
+                Text("Load logs")
             }
+
+        }
     }
 }
