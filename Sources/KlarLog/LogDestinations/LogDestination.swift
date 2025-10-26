@@ -25,16 +25,17 @@ import Foundation
 ///
 /// ```swift
 /// struct AnalyticsDestination: LogDestination, Sendable {
+///     // Required from `LogDestination` protocol:
 ///     // Only messages whose level is included in this collection should be handled.
 ///     public var logForLogLevels: [LogLevel]
 ///
 ///     /// Creates a console logging destination.
-///     /// - Parameter logForLogLevels: The log levels this destination should write.Messages whose level is not included are ignored. Defaults to all log levels.
+///     /// - Parameter logForLogLevels: The log levels this destination should write. Messages whose level is not included are ignored. Defaults to all log levels.
 ///     public init(logForLogLevels: [LogLevel] = LogLevel.allCases) {
 ///         self.logForLogLevels = logForLogLevels
 ///     }
 ///
-///     func log(subsystem: String, category: String, level: ExposedCategoryLogger.Level, message: String) {
+///     func log(subsystem: String, category: String, level: LogLevel, message: String) {
 ///         // Only perform the action of this destination if it was configured to act on this log level.
 ///         guard logForLogLevels.contains(level) else {
 ///             return

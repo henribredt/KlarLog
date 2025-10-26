@@ -20,6 +20,7 @@ import Foundation
 ///
 /// ```swift
 /// let localFileDestination = LocalFileDestination(
+///     logForLogLevels: [.critical, .error, .warning],
 ///     fileURL: .documentsDirectory,
 ///     fileName: "app-logs",
 ///     maxMessages: 1000
@@ -74,7 +75,7 @@ public struct LocalFileDestination: LogDestination, Sendable {
     /// File I/O is serialized via an internal actor for thread safety.
     ///
     /// - Parameters:
-    ///   - logForLogLevels: The log levels this destination should write. Messages whose level is not included are ignored.
+    ///   - logForLogLevels: The log levels this destination should write. Messages whose level is not included are ignored. Defaults to all log levels.
     ///   - fileLocationURL: The directory URL where the log file will be stored. For example, use `FileManager.default.urls(for:in:)` or `.documentsDirectory`.
     ///   - fileName: The base filename (without extension) for the log file. Defaults to "logs". The `.txt` extension is appended automatically.
     ///   - maxMessages: The maximum number of log messages to retain. When the count exceeds this value, the oldest messages are removed (FIFO). Defaults to 600.

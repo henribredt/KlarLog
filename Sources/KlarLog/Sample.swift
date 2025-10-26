@@ -16,11 +16,19 @@ struct LogDestinations: Sendable {
     // create a private destination if the destionation will not be accessed later
     private let console = ConsoleDestination()
     // create a public destination to acesss it late, e.g. for collecting logs
+    #if DEBUG
     public let file = LocalFileDestination(
-        logForLogLevels: [.warning, .error],
-        fileLocationURL: .desktopDirectory,
+        logForLogLevels: LogLevel.allCases,
+        fileLocationURL: .documentsDirectory,
         maxMessages: 800
     )
+    #else
+    public let file = LocalFileDestination(
+           logForLogLevels: [.warning, .error],
+           fileLocationURL: .documentsDirectory,
+           maxMessages: 800
+       )
+    #endif
 }
 
 // 3. Create a globally accessible KlarLog instance with the CategoryLoggers

@@ -37,8 +37,12 @@
 ///
 /// ```swift
 /// struct LogDestinations: Sendable {
-///    public let console = ConsoleDestination()
-///    public let file = LocalFileDestination(fileURL: .desktopDirectory, maxMessages: 800)
+///     public let console = ConsoleDestination()
+///     public let file = LocalFileDestination(
+///         logForLogLevels: [.warning, .error],
+///         fileURL: .documentsDirectory,
+///         maxMessages: 800
+///     )
 /// }
 /// ```
 ///
