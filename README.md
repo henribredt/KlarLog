@@ -22,8 +22,6 @@ https://github.com/henribredt/KlarLog.git
 ## Quick Start
 Configure KlarLog on app launch. Provide configured `CategoryLoggers`and `LogDestinations` as structs.
 
-To make your instance globally available, add a new file `KlarLogConfig.swift` to your project and add [Step 1](Destination), [Setp 2](Define-Your-LoggerDestinations) and [Step 3](Create-Your-Logger) to that file. Then use it to log thoughout your project as shown in [Setp 4](Start-Logging).
-
 #### 1. Define your CategoryLoggers
 ```swift
 struct CategoryLoggers: Sendable {
@@ -55,6 +53,8 @@ let logger = KlarLog(
     subsystem: Bundle.main.bundleIdentifier ?? "com.example.app"
 )
 ```
+> [!TIP]
+> To make your instance globally available, add a new file `KlarLogConfig.swift` to your project and add [Step 1](Destination), [Setp 2](Define-Your-LoggerDestinations) and [Step 3](Create-Your-Logger) to that file. Then use it to log thoughout your project as shown in [Setp 4](Start-Logging).
 
 #### 4. Start Logging
 ```swift
@@ -64,7 +64,6 @@ logger.network.info("Starting request")
 logger.network.debug("URL: \(url)")
 logger.database.error("Connection failed")
 ```
-
 
 ## Log Destinations
 KlarLog allows you to route logs to mutliple log destinations. You can also add custom log destinations by conforming to the `LogDestination` protocol.
