@@ -5,12 +5,11 @@
 A lightweight, type-safe logging framework for Swift with powerful destination-based routing.
 
 ## Features
-
-- **Type-Safe Category Loggers** - Access loggers from a compile-time checked registry
-- **Dynamic Member Lookup** - Clean dot-notation syntax for accessing loggers and log destinations
 - **Multiple Destinations** - Route logs to console, files, and custom destinations
 - **File Logging** - Built-in `LocalFileDestination` with automatic size management
-- **OS.Log Integration** - Built-in `ConsoleDestination` uses `os.Logger` for Xcodes Debug Console and Console.app integration with SwiftUI Preview support
+- **OSLog Integration** - Built-in `ConsoleDestination` uses `OSLog` for Xcodes Debug Console and Console.app integration with SwiftUI Preview support
+- **Type-Safe Category Loggers** - Access loggers from a compile-time checked registry
+- **Dynamic Member Lookup** - Clean dot-notation syntax for accessing loggers and log destinations
 - **Modern Concurrency** - Built with Swift Concurrency for Swift 6
 
 ## Installation
