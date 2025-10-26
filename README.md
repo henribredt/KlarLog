@@ -10,7 +10,7 @@ A lightweight, type-safe logging framework for Swift with powerful destination-b
 - **Dynamic Member Lookup** - Clean dot-notation syntax for accessing loggers and log destinations
 - **Multiple Destinations** - Route logs to console, files, and custom destinations
 - **File Logging** - Built-in `LocalFileDestination` with automatic size management
-- **OS.Log Integration** - Built-in `ConsoleDestination` uses `os.Logger` for Xcodes Debug Console and Console.app integration
+- **OS.Log Integration** - Built-in `ConsoleDestination` uses `os.Logger` for Xcodes Debug Console and Console.app integration with SwiftUI Preview support
 - **Modern Concurrency** - Built with Swift concurrency
 
 ## Installation
