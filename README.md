@@ -32,7 +32,8 @@ struct CategoryLoggers: Sendable {
     public let database = CategoryLogger(category: "database")
 }
 ```
-
+> [!TIP]
+> `CategoryLoggers` organizes your logs by domain or feature, making it easier to filter and search through logs.
 
 #### 2. Define Your LoggerDestinations
 ```swift
@@ -43,6 +44,8 @@ struct LogDestinations: Sendable {
     public let fileDestination = LocalFileDestination(fileLocationURL: .documentsDirectory)
 }
 ```
+> [!TIP]
+> `LogDestinations` determines where logs are sent. Whether to the system console, a local files, remote servers, or other custom outputs.
 
 #### 3. Create Your Logger
 ```swift
