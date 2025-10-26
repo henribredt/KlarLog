@@ -1,27 +1,25 @@
 //
-//  File.swift
+//  CategoryLogger.swift
 //  KlarLog
 //
 
 /// Internal logging instance that routes log messages to destinations provided by `KlarLog`.
 ///
-/// `CategoryLogger` represents a logging category (e.g., "network", "database") and
-/// maintains a category name. After initialization in your registry in `KlarLog`,
-/// these instances are wrapped by `ExposedCategoryLogger` which provides the public logging API.
+/// `CategoryLogger` represents a logging category (e.g., "network", "database").
+/// After initialization in your registry in `KlarLog`, these instances are wrapped by
+/// `ExposedCategoryLogger` which provides the public logging API.
 ///
 /// You create `CategoryLogger` instances in your registry; destinations are configured on `KlarLog`:
 ///
 /// ```swift
 /// public struct CategoryLoggers {
-///     public let network = CategoryLogger(
-///         category: "network"
-///     )
+///     public let network = CategoryLogger(category: "network")
 /// }
 /// ```
 ///
 /// After configuring the registry of `KlarLog` as shown above, end users never interact with
-/// `CategoryLogger` directly as all logging is performed through `ExposedCategoryLogger` instances
-/// returned by `KlarLog`.
+/// `CategoryLogger` directly as all logging is performed through `ExposedCategoryLogger`
+/// instances returned by `KlarLog`.
 public struct CategoryLogger: Sendable {
     /// The category name for this logger (e.g., "network", "database").
     let category: String
@@ -47,17 +45,24 @@ public struct CategoryLogger: Sendable {
     }
 }
 
-/// The public-facing logging interface that provides convenience methods for logging at different severity levels.
+/// Public-facing logging interface for category-based logging.
 ///
-/// `ExposedCategoryLogger` wraps a `CategoryLogger` and binds it to a specific subsystem, providing
-/// ergonomic logging methods like `debug(_:)`, `info(_:)`, and `error(_:)`. You obtain instances
-/// of `ExposedCategoryLogger` from `KlarLog` via dynamic member lookup.
+/// `ExposedCategoryLogger` wraps a `CategoryLogger` and binds it to a specific subsystem and a set of
+/// destinations. It exposes ergonomic methods like `debug(_:)`, `info(_:)`, and `error(_:)`
+/// for logging at different severity levels.
+///
+/// You don't construct `ExposedCategoryLogger` directly. Instead, obtain instances from `KlarLog`
+/// using the category registry you define. The registry holds lightweight `CategoryLogger` values, while
+/// `KlarLog` provides the subsystem and destinations.
+///
+/// Logging is fire-and-forget.
 ///
 /// ## Usage
 ///
 /// ```swift
-/// let log = KlarLog(with: CategoryLoggers(), subsystem: "com.example.app")
-/// // Given a registry with `debug`, `info` and `error` `CategoryLogger` instances
+/// let log = KlarLog(...)
+///
+/// // Given log was configured with a network `CategoryLogger`
 /// log.network.debug("Starting request")
 /// log.network.info("Response received")
 /// log.network.error("Connection failed")
@@ -65,19 +70,22 @@ public struct CategoryLogger: Sendable {
 public struct ExposedCategoryLogger {
     /// Log severity levels following standard logging conventions.
     ///
-    /// Levels are ordered from least to most severe:
-    /// - `debug`: Detailed information for debugging
-    /// - `info`: General informational messages
-    /// - `notice`: Normal but significant conditions
-    /// - `warning`: Warning conditions that should be reviewed
-    /// - `error`: Error conditions that need attention
-    /// - `critical`: Critical conditions requiring immediate action
+    /// Ordered from least to most severe. Use the lowest level that conveys the needed
+    /// information so downstream systems can filter effectively.
+    ///
+    /// - .debug: Detailed information for development and troubleshooting.
+    /// - .info: General operational messages about normal flow.
+    /// - .notice: Significant but expected conditions worth noting.
+    /// - .warning: Something unexpected happened or may cause a problem.
+    /// - .error: A failure occurred that impacted functionality.
+    /// - .critical: An unrecoverable failure requiring immediate attention.
     public enum Level: String {
         case debug, info, notice, warning, error, critical
     }
     
     /// Closure that provides the current subsystem identifier.
     private let subsystem: () -> String
+    /// Closure that provides the LogDestinations
     private let destinations: () -> [LogDestination]
     /// The underlying category logger that routes messages to destinations.
     private var base: CategoryLogger
@@ -110,9 +118,14 @@ public struct ExposedCategoryLogger {
     
     /// Logs a debug message.
     ///
-    /// Use for detailed information useful during development and debugging.
+    /// Use for verbose diagnostic information useful during development.
     ///
     /// - Parameter message: The message to log.
+    ///
+    /// ### Example
+    /// ```swift
+    /// log.network.debug("Request headers: \(headers)")
+    /// ```
     public func debug(_ message: String) {
         self.log(.debug, message)
     }
@@ -122,6 +135,11 @@ public struct ExposedCategoryLogger {
     /// Use for general informational messages about normal application flow.
     ///
     /// - Parameter message: The message to log.
+    ///
+    /// ### Example
+    /// ```swift
+    /// log.network.info("Response received: status=\(status)")
+    /// ```
     public func info(_ message: String) {
         self.log(.info, message)
     }
@@ -131,33 +149,53 @@ public struct ExposedCategoryLogger {
     /// Use for normal but significant conditions that may require attention.
     ///
     /// - Parameter message: The message to log.
+    ///
+    /// ### Example
+    /// ```swift
+    /// log.database.notice("Migration completed")
+    /// ```
     public func notice(_ message: String) {
         self.log(.notice, message)
     }
     
     /// Logs a warning message.
     ///
-    /// Use for warning conditions that should be reviewed but don't prevent operation.
+    /// Use for conditions that could become errors or deserve review.
     ///
     /// - Parameter message: The message to log.
+    ///
+    /// ### Example
+    /// ```swift
+    /// log.network.warning("Slow response: \(latency) ms")
+    /// ```
     public func warning(_ message: String) {
         self.log(.warning, message)
     }
     
     /// Logs an error message.
     ///
-    /// Use for error conditions that need attention and may affect functionality.
+    /// Use for failures that affected functionality but may be recoverable.
     ///
     /// - Parameter message: The message to log.
+    ///
+    /// ### Example
+    /// ```swift
+    /// log.storage.error("Failed to write file: \(error.localizedDescription)")
+    /// ```
     public func error(_ message: String) {
         self.log(.error, message)
     }
     
     /// Logs a critical message.
     ///
-    /// Use for critical conditions that require immediate action.
+    /// Use for unrecoverable failures requiring immediate attention.
     ///
     /// - Parameter message: The message to log.
+    ///
+    /// ### Example
+    /// ```swift
+    /// log.auth.critical("Token compromise detected")
+    /// ```
     public func critical(_ message: String) {
         self.log(.critical, message)
     }

@@ -41,7 +41,7 @@ struct LogDestinations: Sendable {
     // create private destinations by default
     private let consoleDestination = ConsoleDestination()
     // create a public destination if you require access druing runtime, e.g. for collecting logs
-    public let fileDestination = LocalFileDestination(fileLocationURL: .documentsDirectory, fileName: "app-logs", maxMessages: 800)
+    public let fileDestination = LocalFileDestination(fileLocationURL: .documentsDirectory, maxMessages: 800)
 }
 ```
 
@@ -75,7 +75,7 @@ private let consoleDestination = ConsoleDestination()
 #### 💾 LocalFileDestination
 Maintains a local persistent log file and automatically manages its size by removing old entries when the maximum message count is reached using FIFO.
 ```swift
-public let fileDestination = LocalFileDestination(fileLocationURL: .documentDirectory, maxMessages: 800)
+public let fileDestination = LocalFileDestination(fileLocationURL: .documentDirectory, fileName: "app-logs", maxMessages: 800)
 ```
 If you declare `LocalFileDestination`as `public` in your `LogDestinations`, you can retieve the object from the `KlarLog` instance.
 ```swift
