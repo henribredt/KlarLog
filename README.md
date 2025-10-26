@@ -89,7 +89,7 @@ Simply add an instance of your `LogDestination` in [Step 2](Define-Your-LoggerDe
 ```swift
 /// Sample custom log destination
 
-struct AnalyticsDestination: LogDestination {
+struct AnalyticsDestination: LogDestination, Sendable {
     let apiURL: URL
     
     func log(subsystem: String, category: String, level: ExposedCategoryLogger.Level, message: String) {

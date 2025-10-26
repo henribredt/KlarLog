@@ -24,7 +24,7 @@ import Foundation
 /// Create custom destinations by conforming to this protocol:
 ///
 /// ```swift
-/// struct AnalyticsDestination: LogDestination {
+/// struct AnalyticsDestination: LogDestination, Sendable {
 ///     func log(subsystem: String, category: String, level: ExposedCategoryLogger.Level, message: String) {
 ///         Analytics.track(event: "log", properties: [
 ///             "level": level.rawValue,
