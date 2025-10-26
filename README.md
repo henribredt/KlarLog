@@ -125,7 +125,7 @@ struct AnalyticsDestination: LogDestination {
 
 ## License
 
-`ObservableDefaults` is released under the MIT License. See [LICENSE](LICENSE) for details.
+`KlarLog` is released under the MIT License. See [LICENSE](LICENSE) for details.
 
 ---
 
