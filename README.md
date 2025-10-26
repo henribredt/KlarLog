@@ -135,7 +135,9 @@ struct AnalyticsDestination: LogDestination, Sendable {
     }
 }
 ```
-In your custom `LogDestination` implementation you are responsible for implementing `logForLogLevels` checks and only acting on log messages that are included in the `logForLogLevels` configuration.
+> [!IMPORTANT]
+>
+> In your custom `LogDestination` implementation you are responsible for implementing `logForLogLevels` checks and only acting on log messages that are included in the `logForLogLevels` configuration like in the example above.
 
 ## Log Levels
 
