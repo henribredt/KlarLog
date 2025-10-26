@@ -71,7 +71,7 @@ logger.database.error("Connection failed")
 ## Log Destinations
 KlarLog allows you to route logs to mutliple log destinations. You can also add custom log destinations by conforming to the `LogDestination` protocol.
 
-For each destination you can configure `logForLogLevels`. The destination will only log for `LogLevel`s listed in that array. This helps keep logs organized and makes it easy to control logging granularity. That way you can use differnt configurations in Debug und Release:
+For each destination you can configure `logForLogLevels`. The destination will only log for `LogLevel`s listed in that array. This helps to control logging granularity and ebables you to use differnt configurations in Debug und Release:
 ```swift
 #if DEBUG
 public let file = LocalFileDestination(
@@ -131,23 +131,7 @@ struct AnalyticsDestination: LogDestination, Sendable {
             return
         }
         
-        Task {
-            var request = URLRequest(url: apiURL)
-            request.httpMethod = "POST"
-            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-            
-            let payload = [
-                "subsystem": subsystem,
-                "category": category,
-                "level": level.rawValue,
-                "message": message,
-                "timestamp": ISO8601DateFormatter().string(from: Date())
-            ]
-            
-            request.httpBody = try? JSONSerialization.data(withJSONObject: payload)
-            
-            try? await URLSession.shared.data(for: request)
-        }
+        // Send to analytics server ...
     }
 }
 ```
