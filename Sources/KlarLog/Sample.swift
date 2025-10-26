@@ -49,12 +49,10 @@ struct SampleView: View {
                 }
             
             Button {
-            // TODO: GET ACCESSS TO LOGS
                 let fileDestination = logger.destinations.file
                 Task{
-                    logs = await fileDestination.readLogs().first ?? "no log"
+                    logs = await fileDestination.readLogs().first ?? "file log empty"
                 }
-                
             } label: {
                 Text("Load logs")
             }

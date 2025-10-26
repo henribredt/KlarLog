@@ -108,8 +108,8 @@ public let fileDestination = LocalFileDestination(
 ```
 If you declare `LocalFileDestination`as `public` in your `LogDestinations`, you can retieve the object from the `KlarLog` instance.
 ```swift
-let logs = await logger.fileDestination.readLogs()
-await log.fileDestination.clearLogs()
+let logs = await logger.destinations.fileDestination.readLogs()
+await logger.destinations.fileDestination.clearLogs()
 ```
 
 ### Custom Log Destinations
