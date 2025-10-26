@@ -40,9 +40,7 @@ struct LogDestinations: Sendable {
     // create private destinations by default
     private let consoleDestination = ConsoleDestination()
     // create a public destination if you require access druing runtime, e.g. for collecting logs
-    public let fileDestination = LocalFileDestination(
-        fileLocationURL: .documentsDirectory
-    )
+    public let fileDestination = LocalFileDestination(fileLocationURL: .documentsDirectory)
 }
 ```
 
