@@ -47,6 +47,8 @@ struct SampleView: View {
                     logger.general.info("App launched")
                 }
             
+            Text(logs)
+            
             Button {
                 // 4.2 Use logger
                 logger.auth.notice("Signed out")
@@ -63,7 +65,6 @@ struct SampleView: View {
             } label: {
                 Text("Load logs")
             }
-
         }
     }
 }
