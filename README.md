@@ -54,7 +54,7 @@ let logger = KlarLog(
 )
 ```
 > [!TIP]
-> To make your instance globally available, add a new file `KlarLogConfig.swift` to your project and add [Step 1](Destination), [Setp 2](Define-Your-LoggerDestinations) and [Step 3](Create-Your-Logger) to that file. Then use it to log thoughout your project as shown in [Setp 4](Start-Logging).
+> To make your instance globally available, add a new file `KlarLogConfig.swift` to your project and add [Step 1](Destination), [Setp 2](Define-Your-LoggerDestinations) and [Step 3](Create-Your-Logger) to that file. Then use it to log thoughout your project as shown in [Setp 4](Start-Logging).
 
 #### 4. Start Logging
 ```swift
