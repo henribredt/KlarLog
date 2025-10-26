@@ -167,10 +167,10 @@ struct AnalyticsDestination: LogDestination, Sendable {
 ---
 
 # Unsupproted OSLog features
-OS.Log provides more powerful logging featues that are currently not yet supported in KlarLog.
-- Use String interpolation to access runtime data. Messages can contain a wide range of data types. Including custom Types if they conform to `CustomStringConvertible`.
-- Non-numeric runtime data like a String or an Object will be redacted in the logs by default <private> – for privacy reasons so that the logs do not show personal information. For data that is not sensitive, set the privacy level: `logger.log("Ordered smoothie \(smoothieName, privacy: .public)")`. Logs can be accessed by anyone who has access to the physical device, never log personal information. You can use an equality reserving hash for senitive information: ` logger.log("Paid with bank account: \(accountNumber, privacy: .private(mask: .hash))")`
-- Use optional format parameters: `logger.log("\(data, format: .hex, align: . right(columns: width))")`. Explore the full range of options using Xcodes code completion.
+OSLog provides more powerful logging featues that are currently not yet supported in KlarLog.
+- Custom types. OSLog Messages can contain a wide range of data types, including custom Types if they conform to `CustomStringConvertible`.
+- Privacy level: Non-numeric runtime data like a String or an Object will be redacted in the logs by default <private> – for privacy reasons so that the logs do not show personal information. For data that is not sensitive, with OSLLog you can set the privacy level: `logger.log("Ordered smoothie \(smoothieName, privacy: .public)")`. Logs can be accessed by anyone who has access to the physical device, so never log personal information. You can use an equality reserving hash for senitive information: ` logger.log("Paid with bank account: \(accountNumber, privacy: .private(mask: .hash))")` in OSLog.
+- Optional format parameters: `logger.log("\(data, format: .hex, align: . right(columns: width))")`. Explore the full range of options using Xcodes code completion.
 - Signposts: use to trace performance-critical paths in Instruments. Mark the beginning and end of a task with a signpost. Read More https://developer.apple.com/documentation/os/recording-performance-data
 
 
