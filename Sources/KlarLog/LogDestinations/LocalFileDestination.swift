@@ -40,7 +40,7 @@ import Foundation
 public struct LocalFileDestination: LogDestination, Sendable {
     /// The log levels that this destination should handle.
     ///
-    /// Only messages whose level is included in this collection are written to the console.
+    /// Only messages whose level is included in this collection are written to the file.
     public var logForLogLevels: [LogLevel]
     /// The URL where log messages are stored.
     private let fileLocationURL: URL
