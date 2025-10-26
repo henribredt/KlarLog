@@ -9,7 +9,7 @@ import SwiftUI
 struct CategoryLoggers: Sendable {
     // 2. Add new `CategoryLogger`s here and conigure them
     public let general = CategoryLogger(category: "general")
-    public let authentification = CategoryLogger(category: "auth")
+    public let auth = CategoryLogger(category: "auth")
 }
 
 struct LogDestinations: Sendable {
@@ -20,13 +20,12 @@ struct LogDestinations: Sendable {
     public let file = LocalFileDestination(
         logForLogLevels: LogLevel.allCases,
         fileLocationURL: .documentsDirectory,
-        maxMessages: 800
+        maxMessages: 1000
     )
     #else
     public let file = LocalFileDestination(
            logForLogLevels: [.warning, .error],
            fileLocationURL: .documentsDirectory,
-           maxMessages: 800
        )
     #endif
 }
@@ -44,11 +43,19 @@ struct SampleView: View {
         VStack{
             Text("KlarLog")
                 .onAppear {
-                    // 4. Use logger
-                    logger.general.info("View appeard")
+                    // 4.1 Use logger
+                    logger.general.info("App launched")
                 }
             
             Button {
+                // 4.2 Use logger
+                logger.auth.notice("Signed out")
+            } label: {
+                Text("Sign out")
+            }
+            
+            Button {
+                // 5. access file logger logs
                 let fileDestination = logger.destinations.file
                 Task{
                     logs = await fileDestination.readLogs().first ?? "file log empty"
