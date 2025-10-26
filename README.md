@@ -16,7 +16,7 @@ A lightweight, type-safe logging framework for Swift with powerful destination-b
 
 Add KlarLog via Swift Package Manager in Xcode: **File → Add Package Dependencies**
 ```
-https://github.com/henribredt/KlarLog
+https://github.com/henribredt/KlarLog.git
 ```
 
 ## Quick Start
