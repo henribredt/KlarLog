@@ -33,7 +33,7 @@ struct CategoryLoggers: Sendable {
 }
 ```
 > [!TIP]
-> The `CategoryLogger` instances organize your logs by domain or feature, making it easier to filter and search through logs.
+> The `CategoryLogger` instances organize your logs by domain or feature, making it easier to filter and search through logs. If you don't want to use different categories simply create one general `CategoryLogger`.
 
 #### 2. Define Your LoggerDestinations
 ```swift
