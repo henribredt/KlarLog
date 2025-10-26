@@ -5,19 +5,18 @@
 A lightweight, type-safe logging framework for Swift with powerful destination-based routing.
 
 ## Features
-
-- **Type-Safe Category Loggers** - Access loggers from a compile-time checked registry
-- **Dynamic Member Lookup** - Clean dot-notation syntax for accessing loggers and log destinations
 - **Multiple Destinations** - Route logs to console, files, and custom destinations
 - **File Logging** - Built-in `LocalFileDestination` with automatic size management
-- **OS.Log Integration** - Built-in `ConsoleDestination` uses `os.Logger` for Xcodes Debug Console and Console.app integration with SwiftUI Preview support
+- **OSLog Integration** - Built-in `ConsoleDestination` uses `OSLog` for Xcodes Debug Console and Console.app integration with SwiftUI Preview support
+- **Type-Safe Category Loggers** - Access loggers from a compile-time checked registry
+- **Dynamic Member Lookup** - Clean dot-notation syntax for accessing loggers and log destinations
 - **Modern Concurrency** - Built with Swift Concurrency for Swift 6
 
 ## Installation
 
 Add KlarLog via Swift Package Manager in Xcode: **File → Add Package Dependencies**
 ```
-https://github.com/henribredt/KlarLog
+https://github.com/henribredt/KlarLog.git
 ```
 
 ## Quick Start
@@ -41,11 +40,7 @@ struct LogDestinations: Sendable {
     // create private destinations by default
     private let consoleDestination = ConsoleDestination()
     // create a public destination if you require access druing runtime, e.g. for collecting logs
-    public let fileDestination = LocalFileDestination(
-        logForLogLevels: [.critical, .error, .warning,],
-        fileLocationURL: .documentsDirectory,
-        maxMessages: 800
-    )
+    public let fileDestination = LocalFileDestination(fileLocationURL: .documentsDirectory)
 }
 ```
 
@@ -74,16 +69,14 @@ KlarLog allows you to route logs to mutliple log destinations. You can also add 
 For each destination you can configure `logForLogLevels`. The destination will only log for `LogLevel`s listed in that array. This helps to control logging granularity and ebables you to use differnt configurations in Debug und Release:
 ```swift
 #if DEBUG
-public let file = LocalFileDestination(
+public let fileDestination = LocalFileDestination(
     logForLogLevels: LogLevel.allCases,
-    fileLocationURL: .documentsDirectory,
-    maxMessages: 800
+    fileLocationURL: .documentsDirectory
 )
 #else
-public let file = LocalFileDestination(
+public let fileDestination = LocalFileDestination(
         logForLogLevels: [.warning, .error],
-        fileLocationURL: .documentsDirectory,
-        maxMessages: 800
+        fileLocationURL: .documentsDirectory
     )
 #endif
 ```
@@ -100,7 +93,7 @@ private let consoleDestination = ConsoleDestination()
 Maintains a local persistent log file and automatically manages its size by removing old entries when the maximum message count is reached using FIFO.
 ```swift
 public let fileDestination = LocalFileDestination(
-    logForLogLevels: [.critical, .error, .warning,],
+    logForLogLevels: [.critical, .error, .warning],
     fileLocationURL: .documentDirectory,
     fileName: "app-logs",
     maxMessages: 800
@@ -135,7 +128,9 @@ struct AnalyticsDestination: LogDestination, Sendable {
     }
 }
 ```
-In your custom `LogDestination` implementation you are responsible for implementing `logForLogLevels` checks and only acting on log messages that are included in the `logForLogLevels` configuration.
+> [!IMPORTANT]
+>
+> In your custom `LogDestination` implementation you are responsible for implementing `logForLogLevels` checks and only acting on log messages that are included in the `logForLogLevels` configuration like in the example above.
 
 ## Log Levels
 
