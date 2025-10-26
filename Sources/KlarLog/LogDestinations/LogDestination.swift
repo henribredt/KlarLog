@@ -25,7 +25,22 @@ import Foundation
 ///
 /// ```swift
 /// struct AnalyticsDestination: LogDestination, Sendable {
+///     // Only messages whose level is included in this collection should be handled.
+///     public var logForLogLevels: [LogLevel]
+///
+///     /// Creates a console logging destination.
+///     /// - Parameter logForLogLevels: The log levels this destination should write.Messages whose level is not included are ignored. Defaults to all log levels.
+///     public init(logForLogLevels: [LogLevel] = LogLevel.allCases) {
+///         self.logForLogLevels = logForLogLevels
+///     }
+///
 ///     func log(subsystem: String, category: String, level: ExposedCategoryLogger.Level, message: String) {
+///         // Only perform the action of this destination if it was configured to act on this log level.
+///         guard logForLogLevels.contains(level) else {
+///             return
+///         }
+///
+///         // perfom custom actions, e.g.:
 ///         Analytics.track(event: "log", properties: [
 ///             "level": level.rawValue,
 ///             "category": category,
@@ -33,6 +48,10 @@ import Foundation
 ///         ])
 ///     }
 /// }
+/// ```
+/// - Important: In your custom `LogDestination` implementation you are responsible for implementing
+///  `logForLogLevels` checks and only acting on log messages that are included in the
+///  `logForLogLevels` configuration.
 public protocol LogDestination: Sendable {
     /// Processes a log message with full context information.
     ///
@@ -44,5 +63,29 @@ public protocol LogDestination: Sendable {
     ///   - category: The category name (e.g., "network", "database").
     ///   - level: The severity level of the message.
     ///   - message: The message text to log.
-    func log(subsystem: String, category: String, level: ExposedCategoryLogger.Level, message: String)
+    func log(subsystem: String, category: String, level: LogLevel, message: String)
+    
+    /// The log levels that this destination should emit.
+    ///
+    /// Use this to filter which messages a destination processes. Messages whose
+    /// `level` is not included should be ignored by the destination.
+    ///
+    /// It's reccomened to use a `guard` check in the `LogDestination` implementaion:
+    /// ```swift
+    /// public struct CustomDestination: LogDestination, Sendable {
+    ///     // Only messages whose level is included in this collection should be handled.
+    ///     public var logForLogLevels: [ExposedCategoryLogger.Level]
+    ///
+    ///     public func log(subsystem: String, category: String, level: LogLevel, message: String) {
+    ///         // Only perform the action of this destination if it was configured to act on this log level.
+    ///         guard logForLogLevels.contains(level) else {
+    ///             return
+    ///         }
+    ///         // perform you actions ...
+    ///     }
+    /// }
+    ///  ```
+    /// - Important:In your custom `LogDestination` implementation you are responsible for implementing this behaviour.
+    var logForLogLevels: [LogLevel] { get }
 }
+
