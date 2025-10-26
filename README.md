@@ -70,9 +70,9 @@ logger.database.error("Connection failed")
 
 ## Log Destinations
 KlarLog allows you to route logs to mutliple log destinations. You can also add custom log destinations by conforming to the `LogDestination` protocol.
-For each destination you can configure `logForLogLevels`. The destination will only log for `LogLevel`s listed in that array. This helps keep logs organized and makes it easy to control logging granularity.
-That way you can use differnt configurations in Debug und Release like that:
-```
+
+For each destination you can configure `logForLogLevels`. The destination will only log for `LogLevel`s listed in that array. This helps keep logs organized and makes it easy to control logging granularity. That way you can use differnt configurations in Debug und Release:
+```swift
 #if DEBUG
 public let file = LocalFileDestination(
     logForLogLevels: LogLevel.allCases,
@@ -87,14 +87,13 @@ public let file = LocalFileDestination(
     )
 #endif
 ```
- 
 
 ### Build-in Log Destinations
 
 #### 🖥️ ConsoleDestination
 Outputs logs with `OSLog`. In SwiftUI Previews, where `OSLog` is unavailable it fallbacks to `print`.
 ```swift
-
+private let consoleDestination = ConsoleDestination()
 ```
 
 #### 💾 LocalFileDestination
