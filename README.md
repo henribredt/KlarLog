@@ -45,7 +45,7 @@ struct LogDestinations: Sendable {
 }
 ```
 > [!TIP]
-> The `LogDestination` instances determine where logs are sent. Whether to the system console, a local files, remote servers, or other custom outputs.
+> The `LogDestination` instances determine where logs are sent. Whether to the system console, local files, remote servers, or other custom outputs.
 
 #### 3. Create Your Logger
 ```swift
