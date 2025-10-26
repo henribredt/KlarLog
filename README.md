@@ -69,12 +69,12 @@ KlarLog allows you to route logs to mutliple log destinations. You can also add 
 For each destination you can configure `logForLogLevels`. The destination will only log for `LogLevel`s listed in that array. This helps to control logging granularity and ebables you to use differnt configurations in Debug und Release:
 ```swift
 #if DEBUG
-public let file = LocalFileDestination(
+public let fileDestination = LocalFileDestination(
     logForLogLevels: LogLevel.allCases,
     fileLocationURL: .documentsDirectory
 )
 #else
-public let file = LocalFileDestination(
+public let fileDestination = LocalFileDestination(
         logForLogLevels: [.warning, .error],
         fileLocationURL: .documentsDirectory
     )
