@@ -33,7 +33,7 @@ struct CategoryLoggers: Sendable {
 > [!TIP]
 > The `CategoryLogger` instances organize your logs by domain or feature, making it easier to filter and search through logs. If you don't want to use different categories simply create one general `CategoryLogger`.
 
-#### 2. Define Your LoggerDestinations
+#### 2. Define Your LogDestinations
 ```swift
 struct LogDestinations: Sendable {
     // create private destinations by default
@@ -54,7 +54,7 @@ let logger = KlarLog(
 )
 ```
 > [!TIP]
-> To make your instance globally available, add a new file `KlarLogConfig.swift` to your project and add [Step 1](Destination), [Setp 2](Define-Your-LoggerDestinations) and [Step 3](Create-Your-Logger) to that file. Then use it to log thoughout your project as shown in [Setp 4](Start-Logging).
+> To make your instance globally available, add a new file `KlarLogConfig.swift` to your project and add [Step 1](Destination), [Setp 2](Define-Your-LogDestinations) and [Step 3](Create-Your-Logger) to that file. Then use it to log thoughout your project as shown in [Setp 4](Start-Logging).
 
 #### 4. Start Logging
 ```swift
@@ -109,7 +109,7 @@ await logger.destinations.fileDestination.clearLogs()
 
 ### Custom Log Destinations
 You can add custom Destinations by conforming to the `LogDestination` protocol to trigger custom actions when a log event is triggerd.
-Simply add an instance of your `LogDestination` in [Step 2](Define-Your-LoggerDestinations) of the Quick Start.
+Simply add an instance of your `LogDestination` in [Step 2](Define-Your-LogDestinations) of the Quick Start.
 ```swift
 /// Sample custom log destination
 
