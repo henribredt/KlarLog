@@ -75,9 +75,9 @@ public let fileDestination = LocalFileDestination(
 )
 #else
 public let fileDestination = LocalFileDestination(
-        logForLogLevels: [.warning, .error],
-        fileLocationURL: .documentsDirectory
-    )
+    logForLogLevels: [.warning, .error],
+    fileLocationURL: .documentsDirectory
+)
 #endif
 ```
 
