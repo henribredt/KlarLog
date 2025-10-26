@@ -6,12 +6,12 @@ A lightweight, type-safe logging framework for Swift with powerful destination-b
 
 ## Features
 
-- **Type-Safe Categories** - Define category loggers in a compile-time checked registry
+- **Type-Safe Category Loggers** - Access loggers from a compile-time checked registry
 - **Dynamic Member Lookup** - Clean dot-notation syntax for accessing loggers and log destinations
 - **Multiple Destinations** - Route logs to console, files, and custom destinations
 - **File Logging** - Built-in `LocalFileDestination` with automatic size management
 - **OS.Log Integration** - Built-in `ConsoleDestination` uses `os.Logger` for Xcodes Debug Console and Console.app integration with SwiftUI Preview support
-- **Modern Concurrency** - Built with Swift concurrency
+- **Modern Concurrency** - Built with Swift Concurrency for Swift 6
 
 ## Installation
 
@@ -41,7 +41,11 @@ struct LogDestinations: Sendable {
     // create private destinations by default
     private let consoleDestination = ConsoleDestination()
     // create a public destination if you require access druing runtime, e.g. for collecting logs
-    public let fileDestination = LocalFileDestination(fileLocationURL: .documentsDirectory, maxMessages: 800)
+    public let fileDestination = LocalFileDestination(
+        logForLogLevels: [.critical, .error, .warning,],
+        fileLocationURL: .documentsDirectory,
+        maxMessages: 800
+    )
 }
 ```
 
@@ -64,18 +68,40 @@ logger.database.error("Connection failed")
 ```
 
 
-## Build-in Log Destinations
+## Log Destinations
+KlarLog allows you to route logs to mutliple log destinations. You can also add custom log destinations by conforming to the `LogDestination` protocol.
+For each destination you can configure `logForLogLevels`. The destination will only log for `LogLevel`s listed in that array. This helps keep logs organized and makes it easy to control logging granularity.
+That way you can use differnt configurations in Debug und Release like that:
+```
+#if DEBUG
+public let file = LocalFileDestination(
+    logForLogLevels: LogLevel.allCases,
+    fileLocationURL: .documentsDirectory,
+    maxMessages: 800
+)
+#else
+public let file = LocalFileDestination(
+        logForLogLevels: [.warning, .error],
+        fileLocationURL: .documentsDirectory,
+        maxMessages: 800
+    )
+#endif
+```
+ 
+
+### Build-in Log Destinations
 
 #### 🖥️ ConsoleDestination
 Outputs logs with `OSLog`. In SwiftUI Previews, where `OSLog` is unavailable it fallbacks to `print`.
 ```swift
-private let consoleDestination = ConsoleDestination()
+
 ```
 
 #### 💾 LocalFileDestination
 Maintains a local persistent log file and automatically manages its size by removing old entries when the maximum message count is reached using FIFO.
 ```swift
 public let fileDestination = LocalFileDestination(
+    logForLogLevels: [.critical, .error, .warning,],
     fileLocationURL: .documentDirectory,
     fileName: "app-logs",
     maxMessages: 800
@@ -87,16 +113,25 @@ let logs = await logger.fileDestination.readLogs()
 await log.fileDestination.clearLogs()
 ```
 
-## Custom Log Destinations
+### Custom Log Destinations
 You can add custom Destinations by conforming to the `LogDestination` protocol to trigger custom actions when a log event is triggerd.
 Simply add an instance of your `LogDestination` in [Step 2](Define-Your-LoggerDestinations) of the Quick Start.
 ```swift
 /// Sample custom log destination
 
-struct AnalyticsDestination: LogDestination, Sendable {
+struct AnalyticsDestination: LogDestination, Sendable {    
+    // Protocol conformance
+    // Only messages whose level is included in this collection should be handled
+    public var logForLogLevels: [LogLevel]
+    
     let apiURL: URL
     
-    func log(subsystem: String, category: String, level: ExposedCategoryLogger.Level, message: String) {
+    func log(subsystem: String, category: String, level: LogLevel, message: String) {
+        // Only perform the action of this destination if it was configured to act on this log level.
+        guard logForLogLevels.contains(level) else {
+            return
+        }
+        
         Task {
             var request = URLRequest(url: apiURL)
             request.httpMethod = "POST"
@@ -117,6 +152,7 @@ struct AnalyticsDestination: LogDestination, Sendable {
     }
 }
 ```
+In your custom `LogDestination` implementation you are responsible for implementing `logForLogLevels` checks and only acting on log messages that are included in the `logForLogLevels` configuration.
 
 ## Log Levels
 

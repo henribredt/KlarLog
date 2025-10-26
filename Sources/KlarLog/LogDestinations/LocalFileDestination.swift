@@ -20,6 +20,7 @@ import Foundation
 ///
 /// ```swift
 /// let localFileDestination = LocalFileDestination(
+///     logForLogLevels: [.critical, .error, .warning],
 ///     fileURL: .documentsDirectory,
 ///     fileName: "app-logs",
 ///     maxMessages: 1000
@@ -37,7 +38,11 @@ import Foundation
 /// ```
 /// logsFilrURL = await localFileDestination.logFileURLForSharing()
 /// ```
-public final class LocalFileDestination: LogDestination, Sendable {
+public struct LocalFileDestination: LogDestination, Sendable {
+    /// The log levels that this destination should handle.
+    ///
+    /// Only messages whose level is included in this collection are written to the file.
+    public var logForLogLevels: [LogLevel]
     /// The URL where log messages are stored.
     private let fileLocationURL: URL
     /// Name of the log file
@@ -63,20 +68,23 @@ public final class LocalFileDestination: LogDestination, Sendable {
     /// Actor that ensures serialized, thread-safe access to file operations.
     private let fileActor: FileOperationActor
     
-    /// Creates a new file destination.
+    /// Creates a new local file log destination.
     ///
-    /// If the file doesn't exist, it will be created on the first log write.
-    /// If it exists, new messages are appended.
+    /// This initializer configures a destination that persists log messages to a text file on disk
+    /// and automatically prunes the oldest entries when the configured limit is exceeded (FIFO).
+    /// File I/O is serialized via an internal actor for thread safety.
     ///
     /// - Parameters:
-    ///   - fileLocationURL: The URL to the directory where logs should be written
-    ///   - fileName: Name of the file. Defaults to "logs".
-    ///   - maxMessages: The maximum number of log messages to retain. When exceeded,
-    ///     the oldest messages are removed (FIFO). Defaults to 600.
+    ///   - logForLogLevels: The log levels this destination should write. Messages whose level is not included are ignored. Defaults to all log levels.
+    ///   - fileLocationURL: The directory URL where the log file will be stored. For example, use `FileManager.default.urls(for:in:)` or `.documentsDirectory`.
+    ///   - fileName: The base filename (without extension) for the log file. Defaults to "logs". The `.txt` extension is appended automatically.
+    ///   - maxMessages: The maximum number of log messages to retain. When the count exceeds this value, the oldest messages are removed (FIFO). Defaults to 600.
     ///
-    /// - Note: The file is not created or validated during initialization. The first
-    ///   write operation will create it if necessary.
-    public init(fileLocationURL: URL, fileName: String = "logs", maxMessages: Int = 600) {
+    /// - Important: The file and its parent directory are not created during initialization. They are lazily created on first write or when explicitly requested via `logFileURLForSharing()`.
+    ///
+    /// - Note: Existing files are appended to; no historical content is deleted unless the `maxMessages` limit is exceeded or `clearLogs()` is called.
+    public init(logForLogLevels: [LogLevel] = LogLevel.allCases, fileLocationURL: URL, fileName: String = "logs", maxMessages: Int = 600) {
+        self.logForLogLevels = logForLogLevels
         self.fileLocationURL = fileLocationURL
         self.fileName = fileName
         self.maxMessages = maxMessages
@@ -96,7 +104,12 @@ public final class LocalFileDestination: LogDestination, Sendable {
     ///   - category: The category name.
     ///   - level: The severity level.
     ///   - message: The message text to log.
-    public func log(subsystem: String, category: String, level: ExposedCategoryLogger.Level, message: String) {
+    public func log(subsystem: String, category: String, level: LogLevel, message: String) {
+        /// Only perform the action of this destination if it was configured to act on this log level.
+        guard logForLogLevels.contains(level) else {
+            return
+        }
+              
         let timestamp = dateFormatter.string(from: Date())
         let logLine = "\(timestamp)\t[\(level.rawValue.uppercased())]\t[\(category)] \(message)"
         

@@ -40,7 +40,7 @@ public struct CategoryLogger: Sendable {
     ///   - destinations: The list of destinations where messages should be sent.
     ///   - level: The severity level of the log message.
     ///   - message: The message text of the log.
-    fileprivate func log(subsystem: String, destinations: [LogDestination], level: ExposedCategoryLogger.Level, message: String) {
+    fileprivate func log(subsystem: String, destinations: [LogDestination], level: LogLevel, message: String) {
         destinations.forEach { $0.log(subsystem: subsystem, category: category, level: level, message: message) }
     }
 }
@@ -68,21 +68,6 @@ public struct CategoryLogger: Sendable {
 /// log.network.error("Connection failed")
 /// ```
 public struct ExposedCategoryLogger {
-    /// Log severity levels following standard logging conventions.
-    ///
-    /// Ordered from least to most severe. Use the lowest level that conveys the needed
-    /// information so downstream systems can filter effectively.
-    ///
-    /// - .debug: Detailed information for development and troubleshooting.
-    /// - .info: General operational messages about normal flow.
-    /// - .notice: Significant but expected conditions worth noting.
-    /// - .warning: Something unexpected happened or may cause a problem.
-    /// - .error: A failure occurred that impacted functionality.
-    /// - .critical: An unrecoverable failure requiring immediate attention.
-    public enum Level: String {
-        case debug, info, notice, warning, error, critical
-    }
-    
     /// Closure that provides the current subsystem identifier.
     private let subsystem: () -> String
     /// Closure that provides the LogDestinations
@@ -110,7 +95,7 @@ public struct ExposedCategoryLogger {
     /// - Parameters:
     ///   - level: The severity level of the message.
     ///   - message: The message text to log.
-    private func log(_ level: Level, _ message: String) {
+    private func log(_ level: LogLevel, _ message: String) {
         base.log(subsystem: subsystem(), destinations: destinations(), level: level, message: message)
     }
     
