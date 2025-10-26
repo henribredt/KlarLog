@@ -33,7 +33,7 @@ struct CategoryLoggers: Sendable {
 }
 ```
 > [!TIP]
-> CategoryLoggers organizes your logs by domain or feature, making it easier to filter and search through logs.
+> The CategoryLogger instances organize your logs by domain or feature, making it easier to filter and search through logs.
 
 #### 2. Define Your LoggerDestinations
 ```swift
@@ -45,7 +45,7 @@ struct LogDestinations: Sendable {
 }
 ```
 > [!TIP]
-> LogDestinations determines where logs are sent. Whether to the system console, a local files, remote servers, or other custom outputs.
+> The LogDestination instances determine where logs are sent. Whether to the system console, a local files, remote servers, or other custom outputs.
 
 #### 3. Create Your Logger
 ```swift
