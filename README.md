@@ -64,7 +64,7 @@ logger.database.error("Connection failed")
 ```
 
 
-## Buil-in Log Destinations
+## Build-in Log Destinations
 
 #### 🖥️ ConsoleDestination
 Outputs logs with `OSLog`. In SwiftUI Previews, where `OSLog` is unavailable it fallbacks to `print`.
