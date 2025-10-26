@@ -41,9 +41,7 @@ struct LogDestinations: Sendable {
     private let consoleDestination = ConsoleDestination()
     // create a public destination if you require access druing runtime, e.g. for collecting logs
     public let fileDestination = LocalFileDestination(
-        logForLogLevels: [.critical, .error, .warning,],
-        fileLocationURL: .documentsDirectory,
-        maxMessages: 800
+        fileLocationURL: .documentsDirectory
     )
 }
 ```
@@ -75,14 +73,12 @@ For each destination you can configure `logForLogLevels`. The destination will o
 #if DEBUG
 public let file = LocalFileDestination(
     logForLogLevels: LogLevel.allCases,
-    fileLocationURL: .documentsDirectory,
-    maxMessages: 800
+    fileLocationURL: .documentsDirectory
 )
 #else
 public let file = LocalFileDestination(
         logForLogLevels: [.warning, .error],
-        fileLocationURL: .documentsDirectory,
-        maxMessages: 800
+        fileLocationURL: .documentsDirectory
     )
 #endif
 ```
@@ -99,7 +95,7 @@ private let consoleDestination = ConsoleDestination()
 Maintains a local persistent log file and automatically manages its size by removing old entries when the maximum message count is reached using FIFO.
 ```swift
 public let fileDestination = LocalFileDestination(
-    logForLogLevels: [.critical, .error, .warning,],
+    logForLogLevels: [.critical, .error, .warning],
     fileLocationURL: .documentDirectory,
     fileName: "app-logs",
     maxMessages: 800
