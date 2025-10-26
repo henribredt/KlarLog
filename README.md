@@ -1,5 +1,7 @@
 # KlarLog
 
+![Swift 6](https://img.shields.io/badge/Swift-6-orange?logo=swift) ![iOS](https://img.shields.io/badge/iOS-14.0+-green) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+
 A lightweight, type-safe logging framework for Swift with powerful destination-based routing.
 
 ### Features
@@ -104,6 +106,12 @@ struct AnalyticsDestination: LogDestination {
     }
 }
 ```
+
+## License
+
+`ObservableDefaults` is released under the MIT License. See [LICENSE](LICENSE) for details.
+
+---
 
 # Debugging tips
 - In Xcode use the Metadata Options button (toggle icon) in the lower left of the Debug Console to select which information of a log will be shown.
