@@ -20,11 +20,7 @@ let package = Package(
         // Targets can depend on other targets in this package and products from dependencies.
         .target(
             name: "KlarLog",
-//            dependencies: [
-//                .product(name: "Logging", package: "swift-log")
-//            ],
             swiftSettings: [
-               .defaultIsolation(MainActor.self), // We do not want to have the logs on the main thread by default
                 .enableUpcomingFeature("NonisolatedNonsendingByDefault"),
                 .enableUpcomingFeature("InferIsolatedConformances")
             ]

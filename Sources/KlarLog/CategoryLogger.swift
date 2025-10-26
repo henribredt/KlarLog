@@ -22,7 +22,7 @@
 /// After configuring the registry of `KlarLog` as shown above, end users never interact with
 /// `CategoryLogger` directly as all logging is performed through `ExposedCategoryLogger` instances
 /// returned by `KlarLog`.
-public struct CategoryLogger {
+public struct CategoryLogger: Sendable {
     /// The category name for this logger (e.g., "network", "database").
     let category: String
     

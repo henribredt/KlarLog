@@ -33,7 +33,7 @@ import Foundation
 ///         ])
 ///     }
 /// }
-public protocol LogDestination {
+public protocol LogDestination: Sendable {
     /// Processes a log message with full context information.
     ///
     /// This method is called by `CategoryLogger` for each configured destination

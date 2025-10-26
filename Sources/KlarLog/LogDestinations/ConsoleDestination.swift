@@ -15,20 +15,11 @@ import Foundation
 /// When running in Xcode Previews (where `os.Logger` is unavailable), this destination
 /// automatically falls back to `print()` with formatted output.
 ///
-/// ## Usage
-///
-/// ```swift
-/// let logger = CategoryLogger(
-///     category: "network",
-///     destinations: [ConsoleDestination()]
-/// )
-/// ```
-///
 /// Messages logged through this destination appear in:
 /// - Xcode's debug console
 /// - Console.app (searchable by subsystem and category)
 /// - System logs accessible via `log` command-line tool
-public struct ConsoleDestination: LogDestination {
+public struct ConsoleDestination: LogDestination, Sendable {
     public init() {}
     
     public func log(subsystem: String, category: String, level: ExposedCategoryLogger.Level, message: String) {

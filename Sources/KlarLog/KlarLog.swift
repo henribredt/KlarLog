@@ -27,7 +27,7 @@
 /// Perform `CategoryLogger` configuration in the registry's initializer or property declarations:
 ///
 /// ```swift
-/// public struct CategoryLoggers {
+/// struct CategoryLoggers: Sendable {
 ///    public let general = CategoryLogger(category: "general")
 ///    public let authentication = CategoryLogger(category: "auth")
 /// }
@@ -36,7 +36,7 @@
 /// Define a destinations registry with concrete `LogDestination` implementations:
 ///
 /// ```swift
-/// public struct LogDestinations {
+/// struct LogDestinations: Sendable {
 ///    public let console = ConsoleDestination()
 ///    public let file = LocalFileDestination(fileURL: .desktopDirectory, maxMessages: 800)
 /// }
@@ -70,16 +70,16 @@
 ///   dynamic member lookup on `KlarLog` (e.g., `log.general`). Other property types
 ///   should not be stored in the `Registry` and will not be exposed as `ExposedCategoryLogger`s.
 @dynamicMemberLookup
-public final class KlarLog<CategoryLoggerRegistry, DestinationRegistry> {
+public final class KlarLog<CategoryLoggerRegistry: Sendable, DestinationRegistry: Sendable>: Sendable {
     /// The underlying registry that provides concrete `CategoryLogger` instances.
-    private var categoryLoggerRegistry: CategoryLoggerRegistry
+    private let categoryLoggerRegistry: CategoryLoggerRegistry
     /// The destinations categoryLoggerRegistry that provides concrete `LogDestination` instances.
-    private var destinationsRegistry: DestinationRegistry
+    private let destinationsRegistry: DestinationRegistry
     /// The logging subsystem name associated with this `KlarLog` instance.
-    private var subsystem: String
+    private let subsystem: String
     
     /// The cached list of destinations.
-    private var _destinations: [LogDestination]
+    private let _destinations: [LogDestination]
     
     /// Creates a new `KlarLog` instance.
     /// Typically you'll only want to create one globally shared instance.

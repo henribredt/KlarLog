@@ -6,13 +6,13 @@
 import SwiftUI
 
 // 1. Setup the CategoryLoggers
-public struct CategoryLoggers {
+struct CategoryLoggers: Sendable {
     // 2. Add new `CategoryLogger`s here and conigure them
     public let general = CategoryLogger(category: "general")
     public let authentification = CategoryLogger(category: "auth")
 }
 
-public struct LogDestinations {
+struct LogDestinations: Sendable {
     // create a private destination if the destionation will not be accessed later
     private let console = ConsoleDestination()
     // create a public destination to acesss it late, e.g. for collecting logs

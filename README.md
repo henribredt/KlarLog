@@ -1,6 +1,6 @@
 # KlarLog
 
-![Swift 6](https://img.shields.io/badge/Swift-6-orange?logo=swift) ![iOS](https://img.shields.io/badge/iOS-14.0+-green) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+![Swift 6](https://img.shields.io/badge/Swift-6-orange?logo=swift) ![iOS](https://img.shields.io/badge/iOS-16.0+-green) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 A lightweight, type-safe logging framework for Swift with powerful destination-based routing.
 
@@ -27,7 +27,7 @@ To make your instance globally available, add a new file `KlarLogConfig.swift` t
 
 #### 1. Define your CategoryLoggers
 ```swift
-struct CategoryLoggers {
+struct CategoryLoggers: Sendable {
     // Add your `CategoryLogger`s
     public let network = CategoryLogger(category: "network")
     public let database = CategoryLogger(category: "database")
@@ -37,7 +37,7 @@ struct CategoryLoggers {
 
 #### 2. Define Your LoggerDestinations
 ```swift
-struct LogDestinations {
+struct LogDestinations: Sendable {
     // create private destinations by default
     private let consoleDestination = ConsoleDestination()
     // create a public destination if you require access druing runtime, e.g. for collecting logs
