@@ -16,46 +16,32 @@ import Foundation
 /// logging from multiple tasks simultaneously. All file operations are performed asynchronously
 /// off the main thread.
 ///
-/// ## File Format
-///
-/// Each log entry is written as a single line with ISO 8601 timestamp:
-///
-/// ```
-/// 2025-10-25T14:30:45Z [ERROR] [com.example.app] [network] Connection failed
-/// ```
-///
 /// ## Usage
 ///
 /// ```swift
-/// let fileURL = FileManager.default
-///     .urls(for: .documentDirectory, in: .userDomainMask)[0]
-///     .appendingPathComponent("app.log")
-///
 /// let localFileDestination = LocalFileDestination(
-///     fileURL: fileURL,
+///     fileURL: .documentsDirectory,
+///     fileName: "app-logs",
 ///     maxMessages: 1000
-/// )
-///
-/// let logger = CategoryLogger(
-///     category: "network",
-///     destinations: [ConsoleDestination(), localFileDestination]
 /// )
 /// ```
 ///
 /// ## Reading Logs
 ///
-/// Use `readLogs()` to retrieve all stored log entries asynchronously:
+/// Use `readLogs()` or `readLogsString()` to retrieve all stored log entries:
 ///
 /// ```swift
 /// let logs = await localFileDestination.readLogs()
-/// print(logs.joined(separator: "\n"))
 /// ```
-///
-/// - Important: File I/O operations may fail. The destination silently ignores errors
-///   to prevent crashes, but you can check the file system directly if logs don't appear.
+/// Access the log file via URL:
+/// ```
+/// logsFilrURL = await localFileDestination.logFileURLForSharing()
+/// ```
 public final class LocalFileDestination: LogDestination, Sendable {
     /// The URL where log messages are stored.
-    private let fileURL: URL
+    private let fileLocationURL: URL
+    /// Name of the log file
+    private let fileName: String
     
     /// The maximum number of log messages to retain before removing old entries.
     private let maxMessages: Int
@@ -83,16 +69,18 @@ public final class LocalFileDestination: LogDestination, Sendable {
     /// If it exists, new messages are appended.
     ///
     /// - Parameters:
-    ///   - fileURL: The URL where logs should be written. Must be a file URL.
+    ///   - fileLocationURL: The URL to the directory where logs should be written
+    ///   - fileName: Name of the file. Defaults to "logs".
     ///   - maxMessages: The maximum number of log messages to retain. When exceeded,
-    ///     the oldest messages are removed (FIFO). Defaults to 1000.
+    ///     the oldest messages are removed (FIFO). Defaults to 600.
     ///
     /// - Note: The file is not created or validated during initialization. The first
     ///   write operation will create it if necessary.
-    public init(fileURL: URL, maxMessages: Int = 600) {
-        self.fileURL = fileURL
+    public init(fileLocationURL: URL, fileName: String = "logs", maxMessages: Int = 600) {
+        self.fileLocationURL = fileLocationURL
+        self.fileName = fileName
         self.maxMessages = maxMessages
-        self.fileActor = FileOperationActor(fileURL: fileURL, maxMessages: maxMessages)
+        self.fileActor = FileOperationActor(fileURL: fileLocationURL, fileName: fileName, maxMessages: maxMessages)
     }
     
     /// Writes a log message to the file asynchronously.
@@ -167,8 +155,8 @@ private actor FileOperationActor {
     private let fileURL: URL
     private let maxMessages: Int
     
-    init(fileURL: URL, maxMessages: Int) {
-        self.fileURL = fileURL.appending(path: "logs.txt")
+    init(fileURL: URL, fileName: String, maxMessages: Int) {
+        self.fileURL = fileURL.appending(path: "\(fileName).txt")
         self.maxMessages = maxMessages
     }
     
