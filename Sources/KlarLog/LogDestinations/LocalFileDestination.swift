@@ -50,20 +50,6 @@ public struct LocalFileDestination: LogDestination, Sendable {
     
     /// The maximum number of log messages to retain before removing old entries.
     private let maxMessages: Int
-    private let dateFormatter: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.locale = .current
-        formatter.timeZone = .current
-        formatter.dateStyle = .short
-        formatter.timeStyle = .medium
-        
-        // Append milliseconds to the existing format
-        if let format = formatter.dateFormat {
-            formatter.dateFormat = format.replacingOccurrences(of: "ss", with: "ss:SS")
-        }
-        
-        return formatter
-    }()
     
     /// Actor that ensures serialized, thread-safe access to file operations.
     private let fileActor: FileOperationActor
@@ -110,11 +96,15 @@ public struct LocalFileDestination: LogDestination, Sendable {
             return
         }
               
-        let timestamp = dateFormatter.string(from: Date())
-        let logLine = "\(timestamp)\t[\(level.rawValue.uppercased())]\t[\(category)] \(message)"
-        
+        let timestamp = Date()
+
         Task.detached(priority: .utility) { [fileActor] in
-            await fileActor.writeLog(logLine)
+            await fileActor.writeLog(
+                category: category,
+                level: level,
+                message: message,
+                timestamp: timestamp
+            )
         }
     }
     
@@ -167,17 +157,34 @@ public struct LocalFileDestination: LogDestination, Sendable {
 private actor FileOperationActor {
     private let fileURL: URL
     private let maxMessages: Int
-    
+    private let dateFormatter: DateFormatter
+
     init(fileURL: URL, fileName: String, maxMessages: Int) {
         self.fileURL = fileURL.appending(path: "\(fileName).txt")
         self.maxMessages = maxMessages
+        self.dateFormatter = {
+            let formatter = DateFormatter()
+            formatter.locale = .current
+            formatter.timeZone = .current
+            formatter.dateStyle = .short
+            formatter.timeStyle = .medium
+
+            if let format = formatter.dateFormat {
+                formatter.dateFormat = format.replacingOccurrences(of: "ss", with: "ss:SS")
+            }
+
+            return formatter
+        }()
     }
-    
+
     /// Writes a log line to the file and enforces the message limit.
-    internal func writeLog(_ logLine: String) {
+    internal func writeLog(category: String, level: LogLevel, message: String, timestamp: Date) {
+        let formattedTimestamp = dateFormatter.string(from: timestamp)
+        let logLine = "\(formattedTimestamp)\t[\(level.rawValue.uppercased())]\t[\(category)] \(message)"
+
         // Read existing logs
         var lines = readLogsInternal()
-        
+
         // Add new log
         lines.append(logLine)
         
