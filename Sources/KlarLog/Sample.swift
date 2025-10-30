@@ -39,32 +39,79 @@ let logger = KlarLog(
 
 struct SampleView: View {
     @State private var logs: String = ""
+    @State private var requestCount: Int = 0
+
     var body: some View {
-        VStack{
-            Text("KlarLog")
+        VStack(spacing: 20) {
+            Text("KlarLog Sample")
+                .font(.headline)
                 .onAppear {
-                    // 4.1 Use logger
+                    // 4.1 Basic logging
                     logger.general.info("App launched")
+
+                    // 4.2 Structured logging with metadata
+                    logger.general.info("App launched", metadata: [
+                        "version": "1.0.0",
+                        "device": "iPhone",
+                        "timestamp": Date().timeIntervalSince1970
+                    ])
                 }
-            
+
             Text(logs)
-            
+                .font(.caption)
+                .multilineTextAlignment(.leading)
+
             Button {
-                // 4.2 Use logger
+                // Basic logging
                 logger.auth.notice("Signed out")
+
+                // Structured logging with metadata
+                logger.auth.notice("User signed out", metadata: [
+                    "userId": "12345",
+                    "sessionDuration": 3600.5,
+                    "wasAutomatic": false
+                ])
             } label: {
                 Text("Sign out")
             }
-            
+
             Button {
-                // 5. access file logger logs
+                requestCount += 1
+
+                // Structured logging for network requests
+                logger.general.info("API request completed", metadata: [
+                    "url": "https://api.example.com/users",
+                    "method": "GET",
+                    "status": 200,
+                    "duration": 0.45,
+                    "requestCount": requestCount
+                ])
+            } label: {
+                Text("Simulate API Request (\(requestCount))")
+            }
+
+            Button {
+                // Error logging with context
+                logger.general.error("Failed to save data", metadata: [
+                    "error": "File not found",
+                    "path": "/tmp/data.json",
+                    "retryCount": 3
+                ])
+            } label: {
+                Text("Log Error with Context")
+            }
+
+            Button {
+                // 5. Access file logger logs
                 let fileDestination = logger.destinations.file
-                Task{
-                    logs = await fileDestination.readLogs().first ?? "file log empty"
+                Task {
+                    let allLogs = await fileDestination.readLogs()
+                    logs = allLogs.suffix(3).joined(separator: "\n")
                 }
             } label: {
-                Text("Load logs")
+                Text("Load Last 3 Logs")
             }
         }
+        .padding()
     }
 }

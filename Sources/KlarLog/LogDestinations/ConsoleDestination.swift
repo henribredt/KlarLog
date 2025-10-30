@@ -45,13 +45,13 @@ public struct ConsoleDestination: LogDestination, Sendable {
         guard logForLogLevels.contains(level) else {
             return
         }
-        
+
         if ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1" {
             // Xcode Previews cannot use os.Logger; fall back to print.
             print("#OSLog_PREVIEW[\(level.rawValue.uppercased())][\(subsystem)][\(category)] \(message)")
         } else {
             let logger = os.Logger(subsystem: subsystem, category: category)
-            
+
             switch level {
             case .debug:
                 logger.debug("\(message)")
@@ -65,6 +65,53 @@ public struct ConsoleDestination: LogDestination, Sendable {
                 logger.error("\(message)")
             case .critical:
                 logger.critical("\(message)")
+            }
+        }
+    }
+
+    /// Writes a message with structured metadata to the system console.
+    ///
+    /// Metadata is formatted as key-value pairs and appended to the message.
+    ///
+    /// - Parameters:
+    ///   - subsystem: The logging subsystem, typically your app's bundle identifier.
+    ///   - category: The logging category that groups related messages.
+    ///   - level: The severity level for the message.
+    ///   - message: The text to log.
+    ///   - metadata: Structured data to include in the log.
+    public func log(subsystem: String, category: String, level: LogLevel, message: String, metadata: LogMetadata?) {
+        /// Only perform the action of this destination if it was configured to act on this log level.
+        guard logForLogLevels.contains(level) else {
+            return
+        }
+
+        // Format message with metadata
+        let formattedMessage: String
+        if let metadata = metadata, !metadata.isEmpty {
+            formattedMessage = "\(message) | \(metadata.formatted())"
+        } else {
+            formattedMessage = message
+        }
+
+        if ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1" {
+            // Xcode Previews cannot use os.Logger; fall back to print.
+            print("#OSLog_PREVIEW[\(level.rawValue.uppercased())][\(subsystem)][\(category)] \(formattedMessage)")
+        } else {
+            let logger = os.Logger(subsystem: subsystem, category: category)
+
+            switch level {
+            case .debug:
+                logger.debug("\(formattedMessage)")
+            case .info:
+                logger.info("\(formattedMessage)")
+            case .notice:
+                logger.notice("\(formattedMessage)")
+            case .warning:
+                logger.warning("\(formattedMessage)")
+            case .error:
+                logger.error("\(formattedMessage)")
+            case .critical:
+                logger.critical("\(formattedMessage)")
             }
         }
     }

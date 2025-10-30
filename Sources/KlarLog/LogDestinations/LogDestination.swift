@@ -65,13 +65,29 @@ public protocol LogDestination: Sendable {
     ///   - level: The severity level of the message.
     ///   - message: The message text to log.
     func log(subsystem: String, category: String, level: LogLevel, message: String)
-    
+
+    /// Processes a log message with structured metadata.
+    ///
+    /// This method is called by `CategoryLogger` when a log message includes
+    /// structured metadata. By default, this strips the metadata and calls
+    /// the basic `log(subsystem:category:level:message:)` method.
+    ///
+    /// Override this method in your destination to handle structured metadata.
+    ///
+    /// - Parameters:
+    ///   - subsystem: The subsystem identifier (e.g., "com.example.app").
+    ///   - category: The category name (e.g., "network", "database").
+    ///   - level: The severity level of the message.
+    ///   - message: The message text to log.
+    ///   - metadata: Structured data associated with this log entry.
+    func log(subsystem: String, category: String, level: LogLevel, message: String, metadata: LogMetadata?)
+
     /// The log levels that this destination should emit.
     ///
     /// Use this to filter which messages a destination processes. Messages whose
     /// `level` is not included should be ignored by the destination.
     ///
-    /// It's reccomened to use a `guard` check in the `LogDestination` implementaion:
+    /// It's recommended to use a `guard` check in the `LogDestination` implementation:
     /// ```swift
     /// public struct CustomDestination: LogDestination, Sendable {
     ///     // Only messages whose level is included in this collection should be handled.
@@ -82,11 +98,23 @@ public protocol LogDestination: Sendable {
     ///         guard logForLogLevels.contains(level) else {
     ///             return
     ///         }
-    ///         // perform you actions ...
+    ///         // perform your actions ...
     ///     }
     /// }
     ///  ```
-    /// - Important:In your custom `LogDestination` implementation you are responsible for implementing this behaviour.
+    /// - Important: In your custom `LogDestination` implementation you are responsible for implementing this behaviour.
     var logForLogLevels: [LogLevel] { get }
+}
+
+// MARK: - Default Implementation
+
+public extension LogDestination {
+    /// Default implementation that strips metadata and calls the basic log method.
+    ///
+    /// Custom destinations can override this to handle metadata appropriately.
+    func log(subsystem: String, category: String, level: LogLevel, message: String, metadata: LogMetadata?) {
+        // By default, ignore metadata and call the basic log method
+        log(subsystem: subsystem, category: category, level: level, message: message)
+    }
 }
 

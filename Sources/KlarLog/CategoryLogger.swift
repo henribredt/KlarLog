@@ -43,6 +43,19 @@ public struct CategoryLogger: Sendable {
     fileprivate func log(subsystem: String, destinations: [LogDestination], level: LogLevel, message: String) {
         destinations.forEach { $0.log(subsystem: subsystem, category: category, level: level, message: message) }
     }
+
+    /// Routes a log message with structured metadata to all provided destinations.
+    /// This method is only called by `ExposedCategoryLogger`.
+    ///
+    /// - Parameters:
+    ///   - subsystem: The subsystem identifier (e.g., "com.example.app").
+    ///   - destinations: The list of destinations where messages should be sent.
+    ///   - level: The severity level of the log message.
+    ///   - message: The message text of the log.
+    ///   - metadata: Structured data associated with this log entry.
+    fileprivate func log(subsystem: String, destinations: [LogDestination], level: LogLevel, message: String, metadata: LogMetadata?) {
+        destinations.forEach { $0.log(subsystem: subsystem, category: category, level: level, message: message, metadata: metadata) }
+    }
 }
 
 /// Public-facing logging interface for category-based logging.
@@ -97,6 +110,16 @@ public struct ExposedCategoryLogger {
     ///   - message: The message text to log.
     private func log(_ level: LogLevel, _ message: String) {
         base.log(subsystem: subsystem(), destinations: destinations(), level: level, message: message)
+    }
+
+    /// Routes a log message with metadata at the specified level to all configured destinations.
+    ///
+    /// - Parameters:
+    ///   - level: The severity level of the message.
+    ///   - message: The message text to log.
+    ///   - metadata: Structured data to attach to this log entry.
+    private func log(_ level: LogLevel, _ message: String, metadata: LogMetadata?) {
+        base.log(subsystem: subsystem(), destinations: destinations(), level: level, message: message, metadata: metadata)
     }
     
     // MARK: - Convenience logging methods
@@ -183,6 +206,104 @@ public struct ExposedCategoryLogger {
     /// ```
     public func critical(_ message: String) {
         self.log(.critical, message)
+    }
+
+    // MARK: - Structured Logging Methods
+
+    /// Logs a debug message with structured metadata.
+    ///
+    /// Use for verbose diagnostic information with additional context.
+    ///
+    /// - Parameters:
+    ///   - message: The message to log.
+    ///   - metadata: Structured data to attach to this log entry.
+    ///
+    /// ### Example
+    /// ```swift
+    /// log.network.debug("Request headers", metadata: ["count": headers.count])
+    /// ```
+    public func debug(_ message: String, metadata: LogMetadata) {
+        self.log(.debug, message, metadata: metadata)
+    }
+
+    /// Logs an informational message with structured metadata.
+    ///
+    /// Use for general informational messages with additional context.
+    ///
+    /// - Parameters:
+    ///   - message: The message to log.
+    ///   - metadata: Structured data to attach to this log entry.
+    ///
+    /// ### Example
+    /// ```swift
+    /// log.network.info("Response received", metadata: ["status": status, "duration": duration])
+    /// ```
+    public func info(_ message: String, metadata: LogMetadata) {
+        self.log(.info, message, metadata: metadata)
+    }
+
+    /// Logs a notice message with structured metadata.
+    ///
+    /// Use for significant conditions with additional context.
+    ///
+    /// - Parameters:
+    ///   - message: The message to log.
+    ///   - metadata: Structured data to attach to this log entry.
+    ///
+    /// ### Example
+    /// ```swift
+    /// log.database.notice("Migration completed", metadata: ["version": "1.2.0", "duration": 5.3])
+    /// ```
+    public func notice(_ message: String, metadata: LogMetadata) {
+        self.log(.notice, message, metadata: metadata)
+    }
+
+    /// Logs a warning message with structured metadata.
+    ///
+    /// Use for conditions that could become errors with additional diagnostic data.
+    ///
+    /// - Parameters:
+    ///   - message: The message to log.
+    ///   - metadata: Structured data to attach to this log entry.
+    ///
+    /// ### Example
+    /// ```swift
+    /// log.network.warning("Slow response", metadata: ["latency": latency, "url": url])
+    /// ```
+    public func warning(_ message: String, metadata: LogMetadata) {
+        self.log(.warning, message, metadata: metadata)
+    }
+
+    /// Logs an error message with structured metadata.
+    ///
+    /// Use for failures with additional diagnostic context.
+    ///
+    /// - Parameters:
+    ///   - message: The message to log.
+    ///   - metadata: Structured data to attach to this log entry.
+    ///
+    /// ### Example
+    /// ```swift
+    /// log.storage.error("Failed to write file", metadata: ["path": path, "error": error.localizedDescription])
+    /// ```
+    public func error(_ message: String, metadata: LogMetadata) {
+        self.log(.error, message, metadata: metadata)
+    }
+
+    /// Logs a critical message with structured metadata.
+    ///
+    /// Use for unrecoverable failures with diagnostic information.
+    ///
+    /// - Parameters:
+    ///   - message: The message to log.
+    ///   - metadata: Structured data to attach to this log entry.
+    ///
+    /// ### Example
+    /// ```swift
+    /// log.auth.critical("Token compromise detected", metadata: ["user_id": userId, "timestamp": Date().timeIntervalSince1970])
+    /// ```
+    public func critical(_ message: String, metadata: LogMetadata) {
+        self.log(.critical, message, metadata: metadata)
     }
 }
 
