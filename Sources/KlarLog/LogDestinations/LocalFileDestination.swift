@@ -109,10 +109,44 @@ public struct LocalFileDestination: LogDestination, Sendable {
         guard logForLogLevels.contains(level) else {
             return
         }
-              
+
         let timestamp = dateFormatter.string(from: Date())
         let logLine = "\(timestamp)\t[\(level.rawValue.uppercased())]\t[\(category)] \(message)"
-        
+
+        Task.detached(priority: .utility) { [fileActor] in
+            await fileActor.writeLog(logLine)
+        }
+    }
+
+    /// Writes a log message with structured metadata to the file asynchronously.
+    ///
+    /// The message is formatted with a timestamp and metadata (serialized as JSON)
+    /// and appended to the file. If the file exceeds `maxMessages`, the oldest
+    /// entries are removed to maintain the limit.
+    ///
+    /// This method returns immediately and performs all file operations asynchronously
+    /// off the main thread.
+    ///
+    /// - Parameters:
+    ///   - subsystem: The subsystem identifier.
+    ///   - category: The category name.
+    ///   - level: The severity level.
+    ///   - message: The message text to log.
+    ///   - metadata: Structured data to persist with this log entry.
+    public func log(subsystem: String, category: String, level: LogLevel, message: String, metadata: LogMetadata?) {
+        /// Only perform the action of this destination if it was configured to act on this log level.
+        guard logForLogLevels.contains(level) else {
+            return
+        }
+
+        let timestamp = dateFormatter.string(from: Date())
+        let logLine: String
+        if let metadata = metadata, !metadata.isEmpty {
+            logLine = "\(timestamp)\t[\(level.rawValue.uppercased())]\t[\(category)] \(message)\t\(metadata.jsonString())"
+        } else {
+            logLine = "\(timestamp)\t[\(level.rawValue.uppercased())]\t[\(category)] \(message)"
+        }
+
         Task.detached(priority: .utility) { [fileActor] in
             await fileActor.writeLog(logLine)
         }
